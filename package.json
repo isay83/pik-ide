@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "blockly": "^12.1.0",
+    "pyodide": "^0.28.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

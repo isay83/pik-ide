@@ -1,5 +1,9 @@
 // src/blocks/index.ts
-import './mostrarBlock'
-// luego aquí irán más bloques como ./guardarBlock, ./siBlock, etc.
-import './guardarBlock'
-import './numeroBlock'
+import './mostrarBlock';
+import './guardarBlock';
+import './numeroBlock';
+import './textoBlock';
+import './siBlock';
+import './repetirBlock';
+import './preguntarBlock';
+import './operacionesBlock';

@@ -1,9 +1,10 @@
 // src/features/CodeView/CodeView.tsx
 export default function CodeView({ code }: { code: string }) {
   return (
-    <div className="p-4 bg-white border rounded-md h-[600px] overflow-auto">
-      <h2 className="font-bold text-lg mb-2">Código PIK</h2>
-      <pre className="whitespace-pre-wrap font-mono text-sm">{code}</pre>
+    <div className="h-[300px] overflow-auto">
+      <pre className="whitespace-pre-wrap font-mono text-sm text-gray-800 bg-gray-50 p-3 rounded border-2 border-dashed border-gray-300">
+        {code || "// Arrastra bloques para generar código PIK..."}
+      </pre>
     </div>
   );
 }
