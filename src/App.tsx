@@ -39,8 +39,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-100 p-4">
-      <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-6">
+      <div className="max-w-full mx-auto space-y-6">
+        <header className="text-center mb-4">
           <h1 className="text-4xl font-bold text-blue-800 mb-2">
             🎯 PIK Visual
           </h1>
@@ -49,40 +49,37 @@ export default function App() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h2 className="text-xl font-bold text-gray-800 mb-3">
-                🧩 Editor de Bloques
-              </h2>
-              <Editor onCodeUpdate={handleCodeUpdate} />
-            </div>
+        {/* Editor expandido con menú lateral integrado */}
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <h2 className="text-xl font-bold text-gray-800 mb-3">
+            🧩 Editor de Bloques
+          </h2>
+          <div className="flex h-[500px] border rounded overflow-hidden">
+            <Editor onCodeUpdate={handleCodeUpdate} />
           </div>
+        </div>
 
-          <div className="space-y-4">
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <div className="flex justify-between items-center mb-3">
-                <h2 className="text-xl font-bold text-gray-800">
-                  📝 Código PIK
-                </h2>
-                <button
-                  onClick={handleRunCode}
-                  disabled={isRunning || !pikCode.trim()}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {isRunning ? "⏳ Ejecutando..." : "▶️ Ejecutar"}
-                </button>
-              </div>
-              <CodeView code={pikCode} />
-            </div>
-
-            <div className="bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
-              <h2 className="text-xl font-bold mb-3">🖥️ Consola de Salida</h2>
-              <pre className="whitespace-pre-wrap font-mono text-sm h-40 overflow-auto">
-                {output || "Presiona 'Ejecutar' para ver la salida..."}
-              </pre>
-            </div>
+        {/* Panel de código */}
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-xl font-bold text-gray-800">📝 Código PIK</h2>
+            <button
+              onClick={handleRunCode}
+              disabled={isRunning || !pikCode.trim()}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isRunning ? "⏳ Ejecutando..." : "▶️ Ejecutar"}
+            </button>
           </div>
+          <CodeView code={pikCode} />
+        </div>
+
+        {/* Consola de salida */}
+        <div className="bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
+          <h2 className="text-xl font-bold mb-3">🖥️ Consola de Salida</h2>
+          <pre className="whitespace-pre-wrap font-mono text-sm h-40 overflow-auto">
+            {output || "Presiona 'Ejecutar' para ver la salida..."}
+          </pre>
         </div>
       </div>
     </div>
