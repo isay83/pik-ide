@@ -1,3 +1,4 @@
+// src/core/pikInterpreter.ts
 import { runPik } from './pyodideRunner'
 
 export class PikInterpreter {
