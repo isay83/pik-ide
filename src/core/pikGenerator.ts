@@ -122,5 +122,17 @@ PikGenerator.comparacion = block => {
     return [`${a} ${comparadores[key]} ${b}`, ORDER_ATOMIC]
 }
 
+PikGenerator.forBlock['mostrar'] = PikGenerator.mostrar;
+PikGenerator.forBlock['guardar'] = PikGenerator.guardar;
+PikGenerator.forBlock['si'] = PikGenerator.si;
+PikGenerator.forBlock['repetir'] = PikGenerator.repetir;
+PikGenerator.forBlock['preguntar'] = PikGenerator.preguntar;
+
+PikGenerator.forBlock['numero'] = PikGenerator.numero;
+PikGenerator.forBlock['texto'] = PikGenerator.texto;
+PikGenerator.forBlock['operacion'] = PikGenerator.operacion;
+PikGenerator.forBlock['comparacion'] = PikGenerator.comparacion;
+
+
 // finish
 PikGenerator.finish = (code: string) => code
