@@ -1,6 +1,6 @@
 # pik/analyzer.py
 
-from .parser import (
+from parser import (
     ProgramaNode, MostrarNode, RepetirNode, MientrasNode, ParaNode, AsignacionNode, 
     PreguntarNode, VariableNode, NumeroNode, DecimalNode, CadenaNode, BooleanoNode, 
     OperacionBinariaNode, SiNode, FuncionNode, LlamadaFuncionNode, RetornarNode

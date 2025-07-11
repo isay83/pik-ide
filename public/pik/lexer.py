@@ -181,5 +181,5 @@ class IndentedLexer(object):
         self.tokens.append(tok)
 
 # Crear el lexer
-base_lexer = lex.lex(reflags=re.IGNORECASE)
+base_lexer = lex.lex(reflags=re.IGNORECASE, optimize=True)
 lexer = IndentedLexer(base_lexer)

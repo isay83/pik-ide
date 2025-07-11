@@ -1,7 +1,7 @@
 # pik/interpreter.py
 
 # Importamos los nodos correctos, incluyendo el nuevo OperacionBinariaNode
-from .parser import (
+from parser import (
     ProgramaNode, MostrarNode, RepetirNode, AsignacionNode, PreguntarNode,
     VariableNode, NumeroNode, CadenaNode, BooleanoNode, OperacionBinariaNode, SiNode,
     MientrasNode, ParaNode, FuncionNode, LlamadaFuncionNode, RetornarNode, DecimalNode  # Agregamos los faltantes

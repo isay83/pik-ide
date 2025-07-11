@@ -1,7 +1,7 @@
 # pik/parser.py
 
 import ply.yacc as yacc
-from .lexer import tokens
+from lexer import tokens
 
 class SyntaxErrorPik(Exception):
     pass
@@ -303,4 +303,4 @@ def p_error(p):
         )
 # --- Construcción del Parser ---
 
-parser = yacc.yacc()
+parser = yacc.yacc(debug=False, optimize=True, write_tables=False)
