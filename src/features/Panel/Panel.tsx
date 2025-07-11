@@ -4,13 +4,35 @@ import { useState } from "react";
 import BlockButton from "./BlockButton";
 
 const categorias = [
-  { nombre: "📤 Salida", bloques: ["mostrar"] },
-  { nombre: "📦 Variables", bloques: ["guardar"] },
-  { nombre: "🔢 Números", bloques: ["numero", "operacion"] },
-  { nombre: "📝 Texto", bloques: ["texto"] },
-  { nombre: "🤔 Lógica", bloques: ["si", "comparacion"] },
-  { nombre: "🔄 Bucles", bloques: ["repetir"] },
-  { nombre: "❓ Entrada", bloques: ["preguntar"] },
+  {
+    nombre: "⚙️ Acciones",
+    bloques: ["guardar", "mostrar", "preguntar"],
+  },
+  {
+    nombre: "🔢 Valores",
+    bloques: ["numero", "texto"],
+  },
+  {
+    nombre: "🧪 Operadores",
+    bloques: ["operacion", "comparacion", "y", "o", "no"],
+  },
+  {
+    nombre: "🧠 Control de flujo",
+    bloques: ["si", "para", "repetir", "mientras", "segun", "caso", "defecto"],
+  },
+  {
+    nombre: "🔄 Convertidores",
+    bloques: [
+      "entero",
+      "decimal",
+      "texto_convertido", // si usas 'convertir_a_texto', cámbialo aquí
+      "booleano",
+    ],
+  },
+  {
+    nombre: "📦 Funciones",
+    bloques: ["funcion", "retornar", "llamar_funcion"],
+  },
 ];
 
 export default function Panel({

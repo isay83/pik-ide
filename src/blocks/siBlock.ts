@@ -7,13 +7,12 @@ Blockly.Blocks['si'] = {
             .setCheck('Boolean')
             .appendField('🤔 si');
 
-        /*this.appendStatementInput('HACER')
-            .setCheck(null)
-            .appendField('hacer:');*/
+        this.appendStatementInput('HACER')
+            .setCheck(null); // sin etiqueta adicional
 
         this.appendStatementInput('SINO')
             .setCheck(null)
-            .appendField('sino:');
+            .appendField('sino');
 
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);

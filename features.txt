@@ -1,0 +1,5 @@
+- Implementa un sistema de historial de ejecuciones: guarda cada bloque de código ejecutado para que los alumnos puedan repasar pasos.
+- Añade snippets de ejemplo dentro de un modal desplegable; así los usuarios podrán importar programas de muestra con un solo clic.
+- Considera integrar un debugger visual: resalta los bloques ejecutados línea a línea en tiempo real.
+- Explora un plugin de autocompletado para tu editor de texto; así los usuarios podrán alternar entre bloques y código escrito.
+- Para producción, habilita la carga diferida de Pyodide (carga el intérprete solo cuando se presiona “Ejecutar”) y muestra una barra de progreso.
