@@ -13,11 +13,13 @@ interface PikBlockGenerator {
     // Acciones de Pik
     mostrar(block: Blockly.Block): string
     guardar(block: Blockly.Block): string
-    repetir(block: Blockly.Block): string
     preguntar(block: Blockly.Block): string
     // Tipos de datos
     numero(block: Blockly.Block): [string, number]
     texto(block: Blockly.Block): [string, number]
+    booleano_valor(block: Blockly.Block): [string, number]
+    // Variables y constantes
+    variable(block: Blockly.Block): [string, number]
     // Operaciones y comparaciones
     operacion(block: Blockly.Block): [string, number]
     comparacion(block: Blockly.Block): [string, number]
@@ -28,6 +30,7 @@ interface PikBlockGenerator {
     // Estructuras de control
     si(block: Blockly.Block): string
     para(block: Blockly.Block): string
+    repetir(block: Blockly.Block): string
     mientras(block: Blockly.Block): string
 
     segun(block: Blockly.Block): string
@@ -75,35 +78,49 @@ PikGenerator.mostrar = block => {
     const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '""'
     return `mostrar ${val}\n`
 }
-PikGenerator.forBlock['mostrar'] = PikGenerator.mostrar;
+PikGenerator.forBlock['mostrar'] = PikGenerator.mostrar
 // GUARDAR
 PikGenerator.guardar = block => {
     const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '0'
-    const name = block.getFieldValue('NOMBRE')!
+    const name = block.getField('VAR')?.getText() || 'item'
     return `guardar ${val} en ${name}\n`
 }
 PikGenerator.forBlock['guardar'] = PikGenerator.guardar
 // PREGUNTAR
 PikGenerator.preguntar = block => {
     const question = PikGenerator.valueToCode(block, 'PREGUNTA', ORDER_NONE) || '""'
-    const variable = block.getFieldValue('VARIABLE')!
+    const variable = block.getField('VAR')?.getText() || 'item'
     return `preguntar ${question} guardar en ${variable}\n`
 }
 PikGenerator.forBlock['preguntar'] = PikGenerator.preguntar
 
 // =================== TIPOS DE DATOS =============================
-// número
+// NÚMERO
 PikGenerator.numero = block => {
     const n = block.getFieldValue('NUM') || '0'
-    return [n, ORDER_ATOMIC]
+    return [n, ORDER_NONE]
 }
 PikGenerator.forBlock['numero'] = PikGenerator.numero
-// texto
+// TEXTO
 PikGenerator.texto = block => {
     const t = block.getFieldValue('TEXT') || ''
-    return [`"${t}"`, ORDER_ATOMIC]
+    return [`"${t}"`, ORDER_NONE]
 }
 PikGenerator.forBlock['texto'] = PikGenerator.texto
+// BOOLEANO LITERAL
+PikGenerator.booleano_valor = block => {
+    const b = block.getFieldValue("BOOL");
+    return [b, ORDER_NONE];
+};
+PikGenerator.forBlock["booleano_valor"] = PikGenerator.booleano_valor;
+
+// =================== VARIABLES Y CONSTANTES =============================
+// VARIABLES
+PikGenerator.variable = block => {
+    const name = block.getField("VAR")?.getText() || "item";
+    return [name, ORDER_NONE];
+};
+PikGenerator.forBlock["variable"] = PikGenerator.variable;
 
 // =================== OPERACIONES ARITMÉTICAS Y COMPARACIONES =============================
 // operación aritmética
@@ -126,53 +143,53 @@ PikGenerator.forBlock['comparacion'] = PikGenerator.comparacion
 // ============================= OPERADORES LÓGICOS =============================
 // Y
 PikGenerator.y = (block) => {
-    const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso";
-    const b = PikGenerator.valueToCode(block, "B", ORDER_NONE) || "falso";
-    return [`${a} y ${b}`, ORDER_ATOMIC];
-};
-PikGenerator.forBlock["y"] = PikGenerator.y;
+    const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso"
+    const b = PikGenerator.valueToCode(block, "B", ORDER_NONE) || "falso"
+    return [`${a} y ${b}`, ORDER_ATOMIC]
+}
+PikGenerator.forBlock["y"] = PikGenerator.y
 // O
 PikGenerator.o = (block) => {
-    const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso";
-    const b = PikGenerator.valueToCode(block, "B", ORDER_NONE) || "falso";
-    return [`${a} o ${b}`, ORDER_ATOMIC];
-};
-PikGenerator.forBlock["o"] = PikGenerator.o;
+    const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso"
+    const b = PikGenerator.valueToCode(block, "B", ORDER_NONE) || "falso"
+    return [`${a} o ${b}`, ORDER_ATOMIC]
+}
+PikGenerator.forBlock["o"] = PikGenerator.o
 // NO
 PikGenerator.no = (block) => {
-    const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso";
-    return [`no ${a}`, ORDER_ATOMIC];
-};
-PikGenerator.forBlock["no"] = PikGenerator.no;
+    const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso"
+    return [`no ${a}`, ORDER_ATOMIC]
+}
+PikGenerator.forBlock["no"] = PikGenerator.no
 
 // =================== SI/SINO =============================
 PikGenerator.si = block => {
-    const cond = PikGenerator.valueToCode(block, 'CONDICION', ORDER_NONE) || 'falso';
-    const thenBranch = PikGenerator.statementToCode(block, 'HACER');
-    const elseBranch = PikGenerator.statementToCode(block, 'SINO');
+    const cond = PikGenerator.valueToCode(block, 'CONDICION', ORDER_NONE) || 'falso'
+    const thenBranch = PikGenerator.statementToCode(block, 'HACER')
+    const elseBranch = PikGenerator.statementToCode(block, 'SINO')
 
-    let code = `si ${cond}:\n`;
-    code += PikGenerator.prefixLines(thenBranch, INDENT);
+    let code = `si ${cond}:\n`
+    code += PikGenerator.prefixLines(thenBranch, INDENT)
 
     if (elseBranch) {
-        code += 'sino:\n';
-        code += PikGenerator.prefixLines(elseBranch, INDENT);
+        code += 'sino:\n'
+        code += PikGenerator.prefixLines(elseBranch, INDENT)
     }
-    return code;
-};
-PikGenerator.forBlock['si'] = PikGenerator.si;
+    return code
+}
+PikGenerator.forBlock['si'] = PikGenerator.si
 
 // ============================== BUCLE PARA =============================
 PikGenerator.para = (block) => {
-    const varName = block.getFieldValue("VAR")!;
-    const desde = PikGenerator.valueToCode(block, "DESDE", ORDER_NONE) || "0";
-    const hasta = PikGenerator.valueToCode(block, "HASTA", ORDER_NONE) || "0";
-    const body = PikGenerator.statementToCode(block, "HACER");
-    let code = `para ${varName} desde ${desde} hasta ${hasta}:\n`;
-    code += PikGenerator.prefixLines(body, INDENT);
-    return code;
-};
-PikGenerator.forBlock["para"] = PikGenerator.para;
+    const varName = block.getFieldValue("VAR")!
+    const desde = PikGenerator.valueToCode(block, "DESDE", ORDER_NONE) || "0"
+    const hasta = PikGenerator.valueToCode(block, "HASTA", ORDER_NONE) || "0"
+    const body = PikGenerator.statementToCode(block, "HACER")
+    let code = `para ${varName} desde ${desde} hasta ${hasta}:\n`
+    code += PikGenerator.prefixLines(body, INDENT)
+    return code
+}
+PikGenerator.forBlock["para"] = PikGenerator.para
 
 // ============================== BUCLE REPETIR =============================
 PikGenerator.repetir = block => {
@@ -187,101 +204,101 @@ PikGenerator.forBlock['repetir'] = PikGenerator.repetir
 
 // ============================== BUCLE MIENTRAS =============================
 PikGenerator.mientras = (block) => {
-    const cond = PikGenerator.valueToCode(block, "CONDICION", ORDER_NONE) || "falso";
-    const body = PikGenerator.statementToCode(block, "HACER");
-    let code = `mientras ${cond}:\n`;
-    code += PikGenerator.prefixLines(body, INDENT);
-    return code;
-};
-PikGenerator.forBlock["mientras"] = PikGenerator.mientras;
+    const cond = PikGenerator.valueToCode(block, "CONDICION", ORDER_NONE) || "falso"
+    const body = PikGenerator.statementToCode(block, "HACER")
+    let code = `mientras ${cond}:\n`
+    code += PikGenerator.prefixLines(body, INDENT)
+    return code
+}
+PikGenerator.forBlock["mientras"] = PikGenerator.mientras
 
 // ============================= SEGUN-CASO-DEFECTO =============================
 // SEGUN
 PikGenerator.segun = (block) => {
-    const expr = PikGenerator.valueToCode(block, "EXPRESION", ORDER_NONE) || "";
-    const cases = PikGenerator.statementToCode(block, "CASOS");
-    let code = `segun ${expr}:\n`;
-    code += cases;
-    return code;
-};
-PikGenerator.forBlock["segun"] = PikGenerator.segun;
+    const expr = PikGenerator.valueToCode(block, "EXPRESION", ORDER_NONE) || ""
+    const cases = PikGenerator.statementToCode(block, "CASOS")
+    let code = `segun ${expr}:\n`
+    code += cases
+    return code
+}
+PikGenerator.forBlock["segun"] = PikGenerator.segun
 // CASOS
 PikGenerator.caso = (block) => {
-    const val = block.getFieldValue("VALOR")!;
-    const body = PikGenerator.statementToCode(block, "CUERPO");
-    let code = `caso ${val}:\n`;
-    code += PikGenerator.prefixLines(body, INDENT);
-    return code;
-};
-PikGenerator.forBlock["caso"] = PikGenerator.caso;
+    const val = block.getFieldValue("VALOR")!
+    const body = PikGenerator.statementToCode(block, "CUERPO")
+    let code = `caso ${val}:\n`
+    code += PikGenerator.prefixLines(body, INDENT)
+    return code
+}
+PikGenerator.forBlock["caso"] = PikGenerator.caso
 // CASO POR DEFECTO
 PikGenerator.defecto = (block) => {
-    const body = PikGenerator.statementToCode(block, "CUERPO");
-    let code = `defecto:\n`;
-    code += PikGenerator.prefixLines(body, INDENT);
-    return code;
-};
-PikGenerator.forBlock["defecto"] = PikGenerator.defecto;
+    const body = PikGenerator.statementToCode(block, "CUERPO")
+    let code = `defecto:\n`
+    code += PikGenerator.prefixLines(body, INDENT)
+    return code
+}
+PikGenerator.forBlock["defecto"] = PikGenerator.defecto
 
 // ============================= CONVERTIDORES =============================
 // ENTERO
 PikGenerator.entero = (block) => {
-    const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || "0";
-    return [`entero(${val})`, ORDER_ATOMIC];
-};
-PikGenerator.forBlock["entero"] = PikGenerator.entero;
+    const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || "0"
+    return [`entero(${val})`, ORDER_ATOMIC]
+}
+PikGenerator.forBlock["entero"] = PikGenerator.entero
 // DECIMAL
 PikGenerator.decimal = block => {
-    const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '0';
-    return [`decimal(${val})`, ORDER_ATOMIC];
+    const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '0'
+    return [`decimal(${val})`, ORDER_ATOMIC]
 }
-PikGenerator.forBlock['decimal'] = PikGenerator.decimal;
+PikGenerator.forBlock['decimal'] = PikGenerator.decimal
 // TEXTO
 PikGenerator.texto_convertido = block => {
-    const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || '""';
-    return [`texto(${val})`, ORDER_ATOMIC];
-};
-PikGenerator.forBlock["convertir_a_texto"] = PikGenerator.texto_convertido;
+    const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || '""'
+    return [`texto(${val})`, ORDER_ATOMIC]
+}
+PikGenerator.forBlock["convertir_a_texto"] = PikGenerator.texto_convertido
 // BOOLEANO
 PikGenerator.booleano = (block) => {
-    const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || "falso";
-    return [`booleano(${val})`, ORDER_ATOMIC];
-};
-PikGenerator.forBlock["booleano"] = PikGenerator.booleano;
+    const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || "falso"
+    return [`booleano(${val})`, ORDER_ATOMIC]
+}
+PikGenerator.forBlock["booleano"] = PikGenerator.booleano
 
 // ============================= FUNCIONES =============================
 // Definir función
 PikGenerator.funcion = (block) => {
-    const name = block.getFieldValue("NOMBRE")!;
+    const name = block.getFieldValue("NOMBRE")!
     // Si tienes un mutator o lista de inputs PARAMS:
     const params = block
         .getFieldValue("PARAMS")
         ?.split(",")
         .map((p: string) => p.trim())
-        .join(", ") || "";
-    const body = PikGenerator.statementToCode(block, "CUERPO");
-    let code = `funcion ${name}(${params}):\n`;
-    code += PikGenerator.prefixLines(body, INDENT);
-    return code;
-};
-PikGenerator.forBlock["funcion"] = PikGenerator.funcion;
+        .join(", ") || ""
+    const body = PikGenerator.statementToCode(block, "CUERPO")
+    let code = `funcion ${name}(${params}):\n`
+    code += PikGenerator.prefixLines(body, INDENT)
+    return code
+}
+PikGenerator.forBlock["funcion"] = PikGenerator.funcion
 // Retornar valor
 PikGenerator.retornar = (block) => {
-    const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || "";
-    return `retornar ${val}\n`;
-};
-PikGenerator.forBlock["retornar"] = PikGenerator.retornar;
+    const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || ""
+    return `retornar ${val}\n`
+}
+PikGenerator.forBlock["retornar"] = PikGenerator.retornar
 // Llamar función
 PikGenerator.llamar_funcion = (block) => {
-    const name = block.getFieldValue("NOMBRE")!;
+    const name = block.getFieldValue("NOMBRE")!
     const args = block
         .getFieldValue("ARGUMENTOS")
         ?.split(",")
         .map((a: string) => a.trim())
-        .join(", ") || "";
-    return [`${name}(${args})`, ORDER_ATOMIC];
-};
-PikGenerator.forBlock["llamar_funcion"] = PikGenerator.llamar_funcion;
+        .join(", ") || ""
+    return [`${name}(${args})`, ORDER_ATOMIC]
+}
+PikGenerator.forBlock["llamar_funcion"] = PikGenerator.llamar_funcion
 
 
 // finish

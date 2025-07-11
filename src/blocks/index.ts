@@ -1,5 +1,6 @@
 // src/blocks/index.ts
 import './booleanoBlock'
+import './booleanoValorBlock'
 import './casoBlock'
 import './comparacionBlock'
 import './decimalBlock'
@@ -23,3 +24,4 @@ import './segunBlock'
 import './siBlock'
 import './textoBlock'
 import './textoConvertidoBlock'
+import './variableBlock'

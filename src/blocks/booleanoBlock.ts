@@ -5,7 +5,7 @@ Blockly.Blocks["booleano"] = {
     init() {
         this.appendValueInput("VALOR")
             .setCheck(null)
-            .appendField("🔄 convertir a booleano")
+            .appendField("🔄 booleano")
 
         this.setOutput(true, null)
         this.setColour("#34d399")

@@ -77,7 +77,7 @@ export default function App() {
         {/* Consola de salida */}
         <div className="bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
           <h2 className="text-xl font-bold mb-3">🖥️ Consola de Salida</h2>
-          <pre className="whitespace-pre-wrap font-mono text-sm h-40 overflow-auto">
+          <pre className="whitespace-pre-wrap font-mono text-3xl h-40 overflow-auto">
             {output || "Presiona 'Ejecutar' para ver la salida..."}
           </pre>
         </div>

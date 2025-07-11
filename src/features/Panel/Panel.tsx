@@ -10,7 +10,11 @@ const categorias = [
   },
   {
     nombre: "🔢 Valores",
-    bloques: ["numero", "texto"],
+    bloques: ["numero", "texto", "booleano_valor"],
+  },
+  {
+    nombre: "📊 Variables",
+    bloques: ["variable", "constante"],
   },
   {
     nombre: "🧪 Operadores",

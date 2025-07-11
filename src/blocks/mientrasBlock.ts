@@ -8,7 +8,7 @@ Blockly.Blocks['mientras'] = {
             .appendField('mientras')
         this.appendStatementInput('HACER')
             .setCheck(null)
-            .appendField('hacer')
+
         this.setPreviousStatement(true, null)
         this.setNextStatement(true, null)
         this.setColour('#60a5fa')
