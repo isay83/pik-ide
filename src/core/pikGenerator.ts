@@ -128,7 +128,7 @@ PikGenerator.operacion = block => {
     const a = PikGenerator.valueToCode(block, 'A', ORDER_NONE) || '0'
     const b = PikGenerator.valueToCode(block, 'B', ORDER_NONE) || '0'
     const key = block.getFieldValue('OPERADOR') as OperadorKey
-    return [`${a} ${operadores[key]} ${b}`, ORDER_ATOMIC]
+    return [`${a} ${operadores[key]} ${b}`, ORDER_NONE]
 }
 PikGenerator.forBlock['operacion'] = PikGenerator.operacion
 // comparación
@@ -136,7 +136,7 @@ PikGenerator.comparacion = block => {
     const a = PikGenerator.valueToCode(block, 'A', ORDER_NONE) || '0'
     const b = PikGenerator.valueToCode(block, 'B', ORDER_NONE) || '0'
     const key = block.getFieldValue('OPERADOR') as ComparadorKey
-    return [`${a} ${comparadores[key]} ${b}`, ORDER_ATOMIC]
+    return [`${a} ${comparadores[key]} ${b}`, ORDER_NONE]
 }
 PikGenerator.forBlock['comparacion'] = PikGenerator.comparacion
 
@@ -145,20 +145,20 @@ PikGenerator.forBlock['comparacion'] = PikGenerator.comparacion
 PikGenerator.y = (block) => {
     const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso"
     const b = PikGenerator.valueToCode(block, "B", ORDER_NONE) || "falso"
-    return [`${a} y ${b}`, ORDER_ATOMIC]
+    return [`${a} y ${b}`, ORDER_NONE]
 }
 PikGenerator.forBlock["y"] = PikGenerator.y
 // O
 PikGenerator.o = (block) => {
     const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso"
     const b = PikGenerator.valueToCode(block, "B", ORDER_NONE) || "falso"
-    return [`${a} o ${b}`, ORDER_ATOMIC]
+    return [`${a} o ${b}`, ORDER_NONE]
 }
 PikGenerator.forBlock["o"] = PikGenerator.o
 // NO
 PikGenerator.no = (block) => {
     const a = PikGenerator.valueToCode(block, "A", ORDER_NONE) || "falso"
-    return [`no ${a}`, ORDER_ATOMIC]
+    return [`no ${a}`, ORDER_NONE]
 }
 PikGenerator.forBlock["no"] = PikGenerator.no
 
