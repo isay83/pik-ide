@@ -244,25 +244,25 @@ PikGenerator.forBlock["defecto"] = PikGenerator.defecto
 // ENTERO
 PikGenerator.entero = (block) => {
     const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || "0"
-    return [`entero(${val})`, ORDER_ATOMIC]
+    return [`entero(${val})`, ORDER_NONE]
 }
 PikGenerator.forBlock["entero"] = PikGenerator.entero
 // DECIMAL
 PikGenerator.decimal = block => {
     const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '0'
-    return [`decimal(${val})`, ORDER_ATOMIC]
+    return [`decimal(${val})`, ORDER_NONE]
 }
 PikGenerator.forBlock['decimal'] = PikGenerator.decimal
 // TEXTO
 PikGenerator.texto_convertido = block => {
     const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || '""'
-    return [`texto(${val})`, ORDER_ATOMIC]
+    return [`texto(${val})`, ORDER_NONE]
 }
-PikGenerator.forBlock["convertir_a_texto"] = PikGenerator.texto_convertido
+PikGenerator.forBlock["texto_convertido"] = PikGenerator.texto_convertido
 // BOOLEANO
 PikGenerator.booleano = (block) => {
     const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || "falso"
-    return [`booleano(${val})`, ORDER_ATOMIC]
+    return [`booleano(${val})`, ORDER_NONE]
 }
 PikGenerator.forBlock["booleano"] = PikGenerator.booleano
 

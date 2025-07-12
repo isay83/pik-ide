@@ -228,7 +228,10 @@ class Interpreter:
             return float(self.visit(node.argumentos[0]))
 
         if node.nombre == 'texto' and len(node.argumentos) == 1:
-            return str(self.visit(node.argumentos[0]))
+            val = self.visit(node.argumentos[0])
+            if isinstance(val, bool):
+                return 'Verdadero' if val else 'Falso'
+            return str(val)
 
         if node.nombre == 'booleano' and len(node.argumentos) == 1:
             val = self.visit(node.argumentos[0])

@@ -37,7 +37,7 @@ export default function Editor({
         renderer: "thrasos",
         theme: pikTheme,
         trashcan: true,
-        scrollbars: true,
+        scrollbars: false,
         zoom: { controls: true, wheel: true },
         grid: { spacing: 25, length: 3, colour: "#ccc", snap: true },
       });
