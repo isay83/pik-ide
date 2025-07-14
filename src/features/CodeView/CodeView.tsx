@@ -1,10 +1,22 @@
 // src/features/CodeView/CodeView.tsx
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import tomorrow from "react-syntax-highlighter/dist/esm/styles/prism/solarizedlight";
+
 export default function CodeView({ code }: { code: string }) {
   return (
     <div className="h-[300px] overflow-auto">
-      <pre className="whitespace-pre-wrap font-mono text-4xl text-gray-800 bg-gray-50 p-3 rounded border-2 border-dashed border-gray-300">
+      <SyntaxHighlighter
+        language="python" // o 'clike', no hay 'pik' por defecto
+        style={tomorrow}
+        customStyle={{
+          fontSize: "1.5rem",
+          padding: "1rem",
+          borderRadius: "0.5rem",
+          border: "2px dashed #d1d5db",
+        }}
+      >
         {code || "// Arrastra bloques para generar código PIK..."}
-      </pre>
+      </SyntaxHighlighter>
     </div>
   );
 }

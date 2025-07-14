@@ -109,18 +109,18 @@ PikGenerator.texto = block => {
 PikGenerator.forBlock['texto'] = PikGenerator.texto
 // BOOLEANO LITERAL
 PikGenerator.booleano_valor = block => {
-    const b = block.getFieldValue("BOOL");
-    return [b, ORDER_NONE];
-};
-PikGenerator.forBlock["booleano_valor"] = PikGenerator.booleano_valor;
+    const b = block.getFieldValue("BOOL")
+    return [b, ORDER_NONE]
+}
+PikGenerator.forBlock["booleano_valor"] = PikGenerator.booleano_valor
 
 // =================== VARIABLES Y CONSTANTES =============================
 // VARIABLES
 PikGenerator.variable = block => {
-    const name = block.getField("VAR")?.getText() || "item";
-    return [name, ORDER_NONE];
-};
-PikGenerator.forBlock["variable"] = PikGenerator.variable;
+    const name = block.getField("VAR")?.getText() || "item"
+    return [name, ORDER_NONE]
+}
+PikGenerator.forBlock["variable"] = PikGenerator.variable
 
 // =================== OPERACIONES ARITMÉTICAS Y COMPARACIONES =============================
 // operación aritmética
@@ -180,11 +180,19 @@ PikGenerator.si = block => {
 PikGenerator.forBlock['si'] = PikGenerator.si
 
 // ============================== BUCLE PARA =============================
-PikGenerator.para = (block) => {
-    const varName = block.getFieldValue("VAR")!
-    const desde = PikGenerator.valueToCode(block, "DESDE", ORDER_NONE) || "0"
-    const hasta = PikGenerator.valueToCode(block, "HASTA", ORDER_NONE) || "0"
-    const body = PikGenerator.statementToCode(block, "HACER")
+PikGenerator.para = block => {
+    const varName = block.getFieldValue('VAR')!
+    const workspace = block.workspace
+
+    if (workspace && workspace.getVariableMap && !workspace.getVariableMap().getVariable(varName)) {
+        workspace.getVariableMap().createVariable(varName)
+    }
+
+    const desde = PikGenerator.valueToCode(block, 'DESDE', ORDER_NONE) || '0'
+    const hasta = PikGenerator.valueToCode(block, 'HASTA', ORDER_NONE) || '0'
+    const body = PikGenerator.statementToCode(block, 'HACER')
+    console.log('Bloques conectados al campo HACER:', body);
+
     let code = `para ${varName} desde ${desde} hasta ${hasta}:\n`
     code += PikGenerator.prefixLines(body, INDENT)
     return code
@@ -300,6 +308,51 @@ PikGenerator.llamar_funcion = (block) => {
 }
 PikGenerator.forBlock["llamar_funcion"] = PikGenerator.llamar_funcion
 
+// =============================================================================
+// Recorre todos los bloques enlazados en un Statement (p.ej. 'HACER', 'SI', 'SINO')
+// y concatena su código. Sin esto, solo el primer bloque se procesa.
+// =============================================================================
+PikGenerator.statementToCode = function (
+    parentBlock: Blockly.Block,
+    name: string
+): string {
+    let code = '';
+    // Empieza por el primer bloque conectado al input `name`
+    let childBlock = parentBlock.getInputTargetBlock(name);
+
+    // Recorre en enlace `next` hasta que no haya más
+    while (childBlock) {
+        // Obtén su código (usa tu blockToCode bajo el capó)
+        let line = this.blockToCode(childBlock);
+        // Si devuelve [text, order], sólo necesitamos el texto
+        if (Array.isArray(line)) {
+            line = line[0];
+        }
+        code += line;
+        // Avanza al siguiente bloque de la cadena
+        const next = childBlock.nextConnection?.targetBlock();
+        childBlock = next || null;
+    }
+
+    return code;
+};
 
 // finish
 PikGenerator.finish = (code: string) => code
+
+// ✅ Procesa cada bloque individual en secuencias como si/para/hacer
+PikGenerator.blockToCode = function (
+    block: Blockly.Block | null
+): string | [string, number] {
+    if (!block) return '';
+
+    const func = this.forBlock?.[block.type];
+    if (typeof func !== 'function') {
+        console.warn(`No hay generador para el bloque: ${block.type}`);
+        return '';
+    }
+
+    // Llamamos al generador pasando (block, this) para cubrir la firma de Blockly
+    const code = func(block, this);
+    return Array.isArray(code) ? code : code ?? '';
+};
