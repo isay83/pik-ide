@@ -22,7 +22,7 @@ const categorias = [
   },
   {
     nombre: "🧠 Control de flujo",
-    bloques: ["si", "para", "repetir", "mientras", "segun", "caso", "defecto"],
+    bloques: ["si", "para", "repetir", "mientras", "segun", "caso"],
   },
   {
     nombre: "🔄 Convertidores",

@@ -11,6 +11,11 @@ Blockly.Blocks["segun"] = {
             .setCheck(null)
             .appendField("casos")
 
+        this.appendStatementInput("DEFECTO")
+            .setCheck(null)
+            .appendField("defecto")
+
+
         this.setPreviousStatement(true, null)
         this.setNextStatement(true, null)
         this.setColour("#60a5fa")

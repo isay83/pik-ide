@@ -5,11 +5,11 @@ Blockly.Blocks["llamar_funcion"] = {
     init() {
         this.appendDummyInput()
             .appendField("📞 llamar")
-            .appendField(new Blockly.FieldTextInput("nombre_funcion"), "NOMBRE")
-
-        this.appendValueInput("ARGUMENTOS")
-            .setCheck(null)
-            .appendField("con argumentos")
+            .appendField(new Blockly.FieldTextInput("saludar"), "NOMBRE")
+            .appendField("(")
+            // Aquí tipeas todos tus argumentos separados por comas
+            .appendField(new Blockly.FieldTextInput("nombre"), "PARAMS")
+            .appendField(")");
 
         this.setOutput(true, null)
         this.setColour("#facc15")

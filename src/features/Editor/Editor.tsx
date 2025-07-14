@@ -24,6 +24,7 @@ export default function Editor({
         text: { colourPrimary: "#c084fc" },
         variable: { colourPrimary: "#34d399" },
         output: { colourPrimary: "#fb7185" },
+        function: { colourPrimary: "#a78bfa" },
       },
       componentStyles: {
         workspaceBackgroundColour: "#fefce8",

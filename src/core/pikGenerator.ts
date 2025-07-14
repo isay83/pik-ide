@@ -5,7 +5,7 @@ import * as Blockly from 'blockly'
 
 // Definimos nuestras propias precedencias y sangría
 const ORDER_NONE = 0
-const ORDER_ATOMIC = 1
+//const ORDER_ATOMIC = 1
 const INDENT = '  '  // dos espacios para sangrar bloques anidados
 
 // Interfaz con la firma exacta de cada método
@@ -191,7 +191,6 @@ PikGenerator.para = block => {
     const desde = PikGenerator.valueToCode(block, 'DESDE', ORDER_NONE) || '0'
     const hasta = PikGenerator.valueToCode(block, 'HASTA', ORDER_NONE) || '0'
     const body = PikGenerator.statementToCode(block, 'HACER')
-    console.log('Bloques conectados al campo HACER:', body);
 
     let code = `para ${varName} desde ${desde} hasta ${hasta}:\n`
     code += PikGenerator.prefixLines(body, INDENT)
@@ -224,9 +223,21 @@ PikGenerator.forBlock["mientras"] = PikGenerator.mientras
 // SEGUN
 PikGenerator.segun = (block) => {
     const expr = PikGenerator.valueToCode(block, "EXPRESION", ORDER_NONE) || ""
-    const cases = PikGenerator.statementToCode(block, "CASOS")
+    const casesCode = PikGenerator.statementToCode(block, "CASOS")
+    const defaultCode = PikGenerator.statementToCode(block, "DEFECTO")
+
     let code = `segun ${expr}:\n`
-    code += cases
+    // 1 nivel de indentación para todos los casos
+    code += PikGenerator.prefixLines(casesCode, INDENT)
+    // Si hay algo en “defecto”, lo añadimos también
+    if (defaultCode.trim()) {
+        // Tab para la etiqueta "defecto:"
+        code += PikGenerator.prefixLines(`defecto:\n`, INDENT);
+        // Tab para cada línea interna
+        code += PikGenerator.prefixLines(defaultCode, INDENT + INDENT);
+    }
+
+
     return code
 }
 PikGenerator.forBlock["segun"] = PikGenerator.segun
@@ -239,14 +250,6 @@ PikGenerator.caso = (block) => {
     return code
 }
 PikGenerator.forBlock["caso"] = PikGenerator.caso
-// CASO POR DEFECTO
-PikGenerator.defecto = (block) => {
-    const body = PikGenerator.statementToCode(block, "CUERPO")
-    let code = `defecto:\n`
-    code += PikGenerator.prefixLines(body, INDENT)
-    return code
-}
-PikGenerator.forBlock["defecto"] = PikGenerator.defecto
 
 // ============================= CONVERTIDORES =============================
 // ENTERO
@@ -299,12 +302,15 @@ PikGenerator.forBlock["retornar"] = PikGenerator.retornar
 // Llamar función
 PikGenerator.llamar_funcion = (block) => {
     const name = block.getFieldValue("NOMBRE")!
-    const args = block
-        .getFieldValue("ARGUMENTOS")
+    // Recogemos el código conectado a ARGUMENTOS
+    // Si tienes un mutator o lista de inputs PARAMS:
+    const params = block
+        .getFieldValue("PARAMS")
         ?.split(",")
-        .map((a: string) => a.trim())
+        .map((p: string) => p.trim())
         .join(", ") || ""
-    return [`${name}(${args})`, ORDER_ATOMIC]
+    // Generamos la llamada con el argumento (puede ser literal o variable)
+    return [`${name}(${params})`, ORDER_NONE]
 }
 PikGenerator.forBlock["llamar_funcion"] = PikGenerator.llamar_funcion
 
@@ -316,26 +322,26 @@ PikGenerator.statementToCode = function (
     parentBlock: Blockly.Block,
     name: string
 ): string {
-    let code = '';
+    let code = ''
     // Empieza por el primer bloque conectado al input `name`
-    let childBlock = parentBlock.getInputTargetBlock(name);
+    let childBlock = parentBlock.getInputTargetBlock(name)
 
     // Recorre en enlace `next` hasta que no haya más
     while (childBlock) {
         // Obtén su código (usa tu blockToCode bajo el capó)
-        let line = this.blockToCode(childBlock);
+        let line = this.blockToCode(childBlock)
         // Si devuelve [text, order], sólo necesitamos el texto
         if (Array.isArray(line)) {
-            line = line[0];
+            line = line[0]
         }
-        code += line;
+        code += line
         // Avanza al siguiente bloque de la cadena
-        const next = childBlock.nextConnection?.targetBlock();
-        childBlock = next || null;
+        const next = childBlock.nextConnection?.targetBlock()
+        childBlock = next || null
     }
 
-    return code;
-};
+    return code
+}
 
 // finish
 PikGenerator.finish = (code: string) => code
@@ -344,15 +350,15 @@ PikGenerator.finish = (code: string) => code
 PikGenerator.blockToCode = function (
     block: Blockly.Block | null
 ): string | [string, number] {
-    if (!block) return '';
+    if (!block) return ''
 
-    const func = this.forBlock?.[block.type];
+    const func = this.forBlock?.[block.type]
     if (typeof func !== 'function') {
-        console.warn(`No hay generador para el bloque: ${block.type}`);
-        return '';
+        console.warn(`No hay generador para el bloque: ${block.type}`)
+        return ''
     }
 
     // Llamamos al generador pasando (block, this) para cubrir la firma de Blockly
-    const code = func(block, this);
-    return Array.isArray(code) ? code : code ?? '';
-};
+    const code = func(block, this)
+    return Array.isArray(code) ? code : code ?? ''
+}

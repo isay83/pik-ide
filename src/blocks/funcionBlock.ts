@@ -4,7 +4,7 @@ import * as Blockly from "blockly"
 Blockly.Blocks["funcion"] = {
     init() {
         this.appendDummyInput()
-            .appendField("🧩 función")
+            .appendField("🧩 funcion")
             .appendField(new Blockly.FieldTextInput("saludar"), "NOMBRE")
             .appendField("(")
             .appendField(new Blockly.FieldTextInput("nombre"), "PARAMS")
@@ -12,7 +12,6 @@ Blockly.Blocks["funcion"] = {
 
         this.appendStatementInput("CUERPO")
             .setCheck(null)
-            .appendField("hacer")
 
         this.setPreviousStatement(false)
         this.setNextStatement(true)
