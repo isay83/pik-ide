@@ -63,7 +63,7 @@ export default function Panel({
           <div key={cat.nombre} className="border rounded-md p-2">
             <button
               onClick={() => setActiva(activa === cat.nombre ? "" : cat.nombre)}
-              className="w-full text-left font-semibold text-gray-700 hover:text-blue-800"
+              className="w-full cursor-pointer text-left font-semibold text-gray-700 hover:text-blue-800"
             >
               {cat.nombre}
             </button>

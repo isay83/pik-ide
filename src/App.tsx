@@ -2,7 +2,9 @@
 import { useCallback, useState } from "react";
 import { CodeView, Editor } from "./features";
 import { PikInterpreter } from "./core/pikInterpreter";
-import "./blocks"; // registra todos los bloques antes de que se monte Blockly
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import coldark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
+import "./blocks";
 
 export default function App() {
   const [pikCode, setPikCode] = useState("");
@@ -49,7 +51,7 @@ export default function App() {
           </p>
         </header>
 
-        {/* Editor expandido con menú lateral integrado */}
+        {/* Editor de bloques */}
         <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-xl font-bold text-gray-800 mb-3">
             🧩 Editor de Bloques
@@ -59,27 +61,34 @@ export default function App() {
           </div>
         </div>
 
-        {/* Panel de código */}
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-xl font-bold text-gray-800">📝 Código PIK</h2>
-            <button
-              onClick={handleRunCode}
-              disabled={isRunning || !pikCode.trim()}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {isRunning ? "⏳ Ejecutando..." : "▶️ Ejecutar"}
-            </button>
+        {/* Panel de código + Consola en misma fila */}
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Código PIK */}
+          <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-xl font-bold text-gray-800">📝 Código PIK</h2>
+              <button
+                onClick={handleRunCode}
+                disabled={isRunning || !pikCode.trim()}
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isRunning ? "⏳ Ejecutando..." : "▶️ Ejecutar"}
+              </button>
+            </div>
+            <CodeView code={pikCode} />
           </div>
-          <CodeView code={pikCode} />
-        </div>
 
-        {/* Consola de salida */}
-        <div className="bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
-          <h2 className="text-xl font-bold mb-3">🖥️ Consola de Salida</h2>
-          <pre className="whitespace-pre-wrap font-mono text-3xl h-40 overflow-auto">
-            {output || "Presiona 'Ejecutar' para ver la salida..."}
-          </pre>
+          {/* Consola */}
+          <div className="flex-1 bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
+            <h2 className="text-xl font-bold mb-3">🖥️ Consola de Salida</h2>
+            <SyntaxHighlighter
+              className="whitespace-pre-wrap text-base lg:text-lg xl:text-xl h-60 overflow-auto"
+              language="bash"
+              style={coldark}
+            >
+              {output || "Presiona 'Ejecutar' para ver la salida..."}
+            </SyntaxHighlighter>
+          </div>
         </div>
       </div>
     </div>

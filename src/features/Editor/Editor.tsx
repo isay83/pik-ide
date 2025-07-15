@@ -14,6 +14,41 @@ export default function Editor({
   const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
+    // Prevenir scroll automático sin cambiar posición
+    const preventScrollOnFocus = () => {
+      const originalScrollTo = window.scrollTo;
+      let isBlocklyActive = false;
+
+      const checkBlocklyFocus = () => {
+        const activeElement = document.activeElement;
+        isBlocklyActive = activeElement?.closest(".blocklyWidgetDiv") !== null;
+      };
+
+      window.scrollTo = function (x?: number | ScrollToOptions, y?: number) {
+        if (!isBlocklyActive) {
+          if (typeof x === "object") {
+            originalScrollTo(x);
+          } else if (x !== undefined && y !== undefined) {
+            originalScrollTo(x, y);
+          }
+        }
+      };
+
+      document.addEventListener("focusin", checkBlocklyFocus);
+      const focusOutHandler = () => {
+        isBlocklyActive = false;
+      };
+      document.addEventListener("focusout", focusOutHandler);
+
+      return () => {
+        window.scrollTo = originalScrollTo;
+        document.removeEventListener("focusin", checkBlocklyFocus);
+        document.removeEventListener("focusout", focusOutHandler);
+      };
+    };
+
+    const cleanup = preventScrollOnFocus();
+
     // Define theme
     const pikTheme = Blockly.Theme.defineTheme("pikTheme", {
       name: "pikTheme",
@@ -63,6 +98,7 @@ export default function Editor({
     }
 
     return () => {
+      cleanup();
       workspaceInstance.current?.dispose();
       workspaceInstance.current = null;
     };
