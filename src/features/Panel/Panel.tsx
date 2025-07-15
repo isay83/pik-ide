@@ -17,8 +17,12 @@ const categorias = [
     bloques: ["variable", "constante"],
   },
   {
+    nombre: "⁉️ Símbolos",
+    bloques: ["comentario", "comentario_bloque", "salto_linea", "tab"],
+  },
+  {
     nombre: "🧪 Operadores",
-    bloques: ["operacion", "comparacion", "y", "o", "no"],
+    bloques: ["operacion", "comparacion", "parentesis", "y", "o", "no"],
   },
   {
     nombre: "🧠 Control de flujo",

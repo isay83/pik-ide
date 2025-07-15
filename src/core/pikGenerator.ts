@@ -20,6 +20,13 @@ interface PikBlockGenerator {
     booleano_valor(block: Blockly.Block): [string, number]
     // Variables y constantes
     variable(block: Blockly.Block): [string, number]
+    // Símbolos
+    comentario(block: Blockly.Block): string
+    texto_multilinea(block: Blockly.Block): [string, number]
+    comentario_bloque(block: Blockly.Block): string
+    parentesis(block: Blockly.Block): [string, number]
+    salto_linea(): [string, number]
+    tab(): [string, number]
     // Operaciones y comparaciones
     operacion(block: Blockly.Block): [string, number]
     comparacion(block: Blockly.Block): [string, number]
@@ -35,7 +42,6 @@ interface PikBlockGenerator {
 
     segun(block: Blockly.Block): string
     caso(block: Blockly.Block): string
-    defecto(block: Blockly.Block): string
     // Convertidores de tipos
     entero(block: Blockly.Block): [string, number]
     decimal(block: Blockly.Block): [string, number]
@@ -122,8 +128,44 @@ PikGenerator.variable = block => {
 }
 PikGenerator.forBlock["variable"] = PikGenerator.variable
 
+// CONSTANTES
+
+// =================== SÍMBOLOS =============================
+// COMENTARIO DE UNA LÍNEA
+PikGenerator.comentario = block => {
+    const txt = block.getFieldValue("TEXTO") || ""
+    return `// ${txt}\n`
+}
+PikGenerator.forBlock["comentario"] = PikGenerator.comentario
+// COMENTARIO DE VARIAS LÍNEAS
+PikGenerator.comentario_bloque = (block) => {
+    // 1) comienzo
+    let code = "/*\n"
+
+    // 2) cuerpo: reutiliza statementToCode + prefixLines
+    const body = PikGenerator.statementToCode(block, "LINEAS")
+    code += PikGenerator.prefixLines(body, INDENT)
+
+    // 3) cierre
+    code += "*/\n"
+    return code
+}
+PikGenerator.forBlock["comentario_bloque"] = PikGenerator.comentario_bloque
+// PARÉNTESIS
+PikGenerator.parentesis = block => {
+    const expr = PikGenerator.valueToCode(block, "EXPR", ORDER_NONE) || ""
+    return [`(${expr})`, ORDER_NONE]
+}
+PikGenerator.forBlock["parentesis"] = PikGenerator.parentesis
+// SALTO DE LÍNEA
+PikGenerator.salto_linea = () => ['"\\n"', ORDER_NONE]
+PikGenerator.forBlock["salto_linea"] = PikGenerator.salto_linea
+// TABULACIÓN
+PikGenerator.tab = () => ['"\\t"', ORDER_NONE]
+PikGenerator.forBlock["tab"] = PikGenerator.tab
+
 // =================== OPERACIONES ARITMÉTICAS Y COMPARACIONES =============================
-// operación aritmética
+// OPERACIÓN ARITMÉTICA
 PikGenerator.operacion = block => {
     const a = PikGenerator.valueToCode(block, 'A', ORDER_NONE) || '0'
     const b = PikGenerator.valueToCode(block, 'B', ORDER_NONE) || '0'
@@ -131,7 +173,7 @@ PikGenerator.operacion = block => {
     return [`${a} ${operadores[key]} ${b}`, ORDER_NONE]
 }
 PikGenerator.forBlock['operacion'] = PikGenerator.operacion
-// comparación
+// COMPARACIÓN
 PikGenerator.comparacion = block => {
     const a = PikGenerator.valueToCode(block, 'A', ORDER_NONE) || '0'
     const b = PikGenerator.valueToCode(block, 'B', ORDER_NONE) || '0'
@@ -232,9 +274,9 @@ PikGenerator.segun = (block) => {
     // Si hay algo en “defecto”, lo añadimos también
     if (defaultCode.trim()) {
         // Tab para la etiqueta "defecto:"
-        code += PikGenerator.prefixLines(`defecto:\n`, INDENT);
+        code += PikGenerator.prefixLines(`defecto:\n`, INDENT)
         // Tab para cada línea interna
-        code += PikGenerator.prefixLines(defaultCode, INDENT + INDENT);
+        code += PikGenerator.prefixLines(defaultCode, INDENT + INDENT)
     }
 
 
