@@ -8,9 +8,9 @@ const INDENT = '  '  // dos espacios para sangrar bloques anidados
 
 // Función utilitaria para concatenar el siguiente bloque
 function appendNext(block: Blockly.Block): string {
-  const next = block.getNextBlock();
-  const nextCode = PikGenerator.blockToCode(next);
-  return (Array.isArray(nextCode) ? nextCode[0] : nextCode || '');
+    const next = block.getNextBlock();
+    const nextCode = PikGenerator.blockToCode(next);
+    return (Array.isArray(nextCode) ? nextCode[0] : nextCode || '');
 }
 
 // Interfaz con la firma exacta de cada método
@@ -30,8 +30,8 @@ interface PikBlockGenerator {
     texto_multilinea(block: Blockly.Block): [string, number]
     comentario_bloque(block: Blockly.Block): string
     parentesis(block: Blockly.Block): [string, number]
-    salto_linea(): [string, number]
-    tab(): [string, number]
+    salto_linea(block: Blockly.Block): [string, number]
+    tab(block: Blockly.Block): [string, number]
     // Operaciones y comparaciones
     operacion(block: Blockly.Block): [string, number]
     comparacion(block: Blockly.Block): [string, number]
@@ -85,22 +85,22 @@ export const PikGenerator = new Blockly.Generator('Pik') as Blockly.Generator & 
 // =================== ACCIONES DE PIK =============================
 // MOSTRAR
 PikGenerator.mostrar = block => {
-  const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '""';
-  return `mostrar ${val}\n` + appendNext(block);
+    const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '""';
+    return `mostrar ${val}\n` + appendNext(block);
 }
 PikGenerator.forBlock['mostrar'] = PikGenerator.mostrar
 // GUARDAR
 PikGenerator.guardar = block => {
-  const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '0';
-  const name = block.getField('VAR')?.getText() || 'item';
-  return `guardar ${val} en ${name}\n` + appendNext(block);
+    const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '0';
+    const name = block.getField('VAR')?.getText() || 'item';
+    return `guardar ${val} en ${name}\n` + appendNext(block);
 }
 PikGenerator.forBlock['guardar'] = PikGenerator.guardar
 // PREGUNTAR
 PikGenerator.preguntar = block => {
-  const question = PikGenerator.valueToCode(block, 'PREGUNTA', ORDER_NONE) || '""';
-  const variable = block.getField('VAR')?.getText() || 'item';
-  return `preguntar ${question} guardar en ${variable}\n` + appendNext(block);
+    const question = PikGenerator.valueToCode(block, 'PREGUNTA', ORDER_NONE) || '""';
+    const variable = block.getField('VAR')?.getText() || 'item';
+    return `preguntar ${question} guardar en ${variable}\n` + appendNext(block);
 }
 PikGenerator.forBlock['preguntar'] = PikGenerator.preguntar
 
@@ -155,11 +155,18 @@ PikGenerator.parentesis = block => {
 }
 PikGenerator.forBlock["parentesis"] = PikGenerator.parentesis
 // SALTO DE LÍNEA
-PikGenerator.salto_linea = () => ['"\\n"', ORDER_NONE]
-PikGenerator.forBlock["salto_linea"] = PikGenerator.salto_linea
+PikGenerator.salto_linea = (block) => {
+    const next = PikGenerator.valueToCode(block, "NEXT", ORDER_NONE) || '""';
+    // Genera: "\n" + (lo que siga) 
+    return [`"\\n" + ${next}`, ORDER_NONE];
+};
+PikGenerator.forBlock["salto_linea"] = PikGenerator.salto_linea;
 // TABULACIÓN
-PikGenerator.tab = () => ['"\\t"', ORDER_NONE]
-PikGenerator.forBlock["tab"] = PikGenerator.tab
+PikGenerator.tab = (block) => {
+    const next = PikGenerator.valueToCode(block, "NEXT", ORDER_NONE) || '""';
+    return [`"\\t" + ${next}`, ORDER_NONE];
+};
+PikGenerator.forBlock["tab"] = PikGenerator.tab;
 
 // =================== OPERACIONES ARITMÉTICAS Y COMPARACIONES =============================
 // OPERACIÓN ARITMÉTICA
@@ -376,7 +383,7 @@ PikGenerator.blockToCode = function (
     if (typeof func !== 'function') {
         console.warn(`No hay generador para el bloque: ${block.type}`)
         return ''
-    } 
+    }
 
     const code = func(block, this)
     return Array.isArray(code) ? code : code ?? ''

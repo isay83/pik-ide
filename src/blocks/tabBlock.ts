@@ -3,9 +3,11 @@ import * as Blockly from "blockly"
 
 Blockly.Blocks["tab"] = {
     init() {
-        this.appendDummyInput().appendField("\\t")
-        this.setOutput(true, null)
+        this.appendValueInput("NEXT")
+            .setCheck(null)
+            .appendField("\\t")
+        this.setOutput(true, "String")
         this.setColour("#34a853")
-        this.setTooltip("Valor de tabulación")
+        this.setTooltip("Tabulación (se puede encadenar)")
     }
 }
