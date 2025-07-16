@@ -1,8 +1,9 @@
 # pik/analyzer.py
+from lexer import constants
 
 from parser import (
     ProgramaNode, MostrarNode, RepetirNode, MientrasNode, ParaNode, AsignacionNode, 
-    PreguntarNode, VariableNode, NumeroNode, DecimalNode, CadenaNode, BooleanoNode, 
+    PreguntarNode, VariableNode, NumeroNode, DecimalNode, CadenaNode, BooleanoNode, ConstanteNode,
     OperacionBinariaNode, SiNode, FuncionNode, LlamadaFuncionNode, RetornarNode
 )
 
@@ -37,6 +38,12 @@ class SemanticAnalyzer:
 
 
     def visit_AsignacionNode(self, node):
+        # Verificar si se intenta asignar a una constante
+        if node.nombre in constants:
+            raise SemanticError(
+                f"Error Semántico: '{node.nombre}' es una constante y no puede ser modificada."
+            )
+            
         # Si se intenta usar un nombre reservado
         if node.nombre in ('y', 'o', 'no'):
             raise SemanticError(
@@ -217,3 +224,7 @@ class SemanticAnalyzer:
 
     def visit_BooleanoNode(self, node):
         return 'booleano'
+    
+    def visit_ConstanteNode(self, node):
+        # Las constantes siempre tienen tipo 'decimal' (excepto si quieres ser más específico)
+        return 'decimal'

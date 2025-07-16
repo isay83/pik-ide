@@ -6,7 +6,7 @@ import BlockButton from "./BlockButton";
 const categorias = [
   {
     nombre: "⚙️ Acciones",
-    bloques: ["guardar", "mostrar", "preguntar"],
+    bloques: ["guardar", "mostrar", "preguntar", "concatenar"],
   },
   {
     nombre: "🔢 Valores",

@@ -73,6 +73,10 @@ class CadenaNode:
 class BooleanoNode:
     def __init__(self, valor): self.valor = valor
     def __repr__(self): return f"BooleanoNode({self.valor})"
+    
+class ConstanteNode:
+    def __init__(self, nombre): self.nombre = nombre
+    def __repr__(self): return f"ConstanteNode(nombre='{self.nombre}')"
 
 class OperacionBinariaNode:
     def __init__(self, op, izq, der): self.op = op; self.izq = izq; self.der = der
@@ -267,6 +271,7 @@ def p_expresion(p):
                  | DECIMAL
                  | CADENA
                  | BOOLEANO
+                 | CONSTANTE
                  | IDENTIFICADOR
                  | llamada_funcion'''
     if len(p) == 4:
@@ -282,7 +287,9 @@ def p_expresion(p):
         elif p.slice[1].type == 'CADENA':
             p[0] = CadenaNode(p[1])
         elif p.slice[1].type == 'BOOLEANO':
-            p[0] = BooleanoNode(p[1]) 
+            p[0] = BooleanoNode(p[1])
+        elif p.slice[1].type == 'CONSTANTE':
+            p[0] = ConstanteNode(p[1]) 
         elif p.slice[1].type == 'IDENTIFICADOR':
             p[0] = VariableNode(p[1])
         else:

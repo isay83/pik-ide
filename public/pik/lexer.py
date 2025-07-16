@@ -2,6 +2,7 @@
 
 import ply.lex as lex
 import re
+import math
 
 class LexicalError(Exception):
     pass
@@ -23,7 +24,7 @@ reserved = {
 }
 
 tokens = [
-    'IDENTIFICADOR', 'NUMERO', 'DECIMAL', 'CADENA', 'BOOLEANO',
+    'IDENTIFICADOR', 'NUMERO', 'DECIMAL', 'CADENA', 'BOOLEANO', 'CONSTANTE',
     'SUMA', 'RESTA', 'MULTIPLICACION', 'DIVISION',
     'IGUAL_A', 'DIFERENTE_DE', 'MENOR_IGUAL', 'MAYOR_IGUAL',
     'IGUAL', 'MENOR', 'MAYOR',
@@ -31,6 +32,12 @@ tokens = [
     'COMA', 'LLAVE_ABRE', 'LLAVE_CIERRA',
     'NEWLINE', 'INDENT', 'DEDENT'
 ] + list(reserved.values())
+
+# Constantes predefinidas
+constants = {
+    'pi': math.pi,
+    'e': math.e
+}
 
 # --- 2. Reglas del Lexer ---
 # Ignorar comentarios de bloque y de línea ANTES de procesar otras reglas
@@ -87,8 +94,21 @@ def t_BOOLEANO(t):
 
 def t_IDENTIFICADOR(t):
     r'[a-zA-ZáéíóúÁÉÍÓÚñÑ_][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9_]*'
-    key = t.value.lower()
-    t.type = reserved.get(key, 'IDENTIFICADOR')
+    raw = t.value
+    key = raw.lower()
+    
+    # Verificar si es una palabra reservada
+    if key in reserved:
+        t.type = reserved[key]
+        return t
+    
+    # Verificar si es una constante
+    if raw in constants:
+        t.type = 'CONSTANTE'
+        return t
+    
+    # Si no es ni reservada ni constante, es un identificador
+    t.type = 'IDENTIFICADOR'
     return t
 
 def t_newline(t):

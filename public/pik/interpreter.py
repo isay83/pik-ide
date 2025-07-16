@@ -1,10 +1,13 @@
 # pik/interpreter.py
 
+# Importar las constantes desde el lexer
+from lexer import constants
 # Importamos los nodos correctos, incluyendo el nuevo OperacionBinariaNode
 from parser import (
     ProgramaNode, MostrarNode, RepetirNode, AsignacionNode, PreguntarNode,
-    VariableNode, NumeroNode, CadenaNode, BooleanoNode, OperacionBinariaNode, SiNode,
-    MientrasNode, ParaNode, FuncionNode, LlamadaFuncionNode, RetornarNode, DecimalNode  # Agregamos los faltantes
+    VariableNode, NumeroNode, DecimalNode, CadenaNode, BooleanoNode, ConstanteNode, OperacionBinariaNode, 
+    SiNode, MientrasNode, ParaNode, FuncionNode, LlamadaFuncionNode, RetornarNode 
+    # Agregamos los faltantes
 )
 import codecs
 
@@ -114,6 +117,8 @@ class Interpreter:
         return node.valor # es True o False
         # return 'Verdadero' if node.valor else 'Falso'
 
+    def visit_ConstanteNode(self, node):
+        return constants[node.nombre]
 
     def visit_SiNode(self, node):
         if self.visit(node.condicion):
@@ -135,7 +140,16 @@ class Interpreter:
         try:
             if op == '+':
                 if isinstance(valor_izq, str) or isinstance(valor_der, str):
-                    return str(valor_izq) + str(valor_der)
+                    # convertir booleans a Español antes de concatenar
+                    def formata(v):
+                        if isinstance(v, bool):
+                            return 'Verdadero' if v else 'Falso'
+                        return v
+
+                    izq = formata(valor_izq)
+                    der = formata(valor_der)
+
+                    return str(izq) + str(der)
                 return valor_izq + valor_der
 
             if op == '-':

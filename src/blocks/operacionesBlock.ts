@@ -1,33 +1,36 @@
 // src/blocks/operacionesBlock.ts
-import * as Blockly from 'blockly';
+import * as Blockly from 'blockly'
+
+// Lista de operadores disponibles
+export const LISTA_OPERADORES: Array<[string, string]> = [
+    ['+', 'SUMA'],
+    ['-', 'RESTA'],
+    ['×', 'MULTIPLICACION'],
+    ['÷', 'DIVISION']
+]
 
 Blockly.Blocks['operacion'] = {
     init() {
         this.appendValueInput('A')
-            .setCheck('Number');
+            .setCheck('Number')
 
         this.appendDummyInput()
-            .appendField(new Blockly.FieldDropdown([
-                ['+', 'SUMA'],
-                ['-', 'RESTA'],
-                ['*', 'MULTIPLICACION'],
-                ['/', 'DIVISION']
-            ]), 'OPERADOR');
+            .appendField(new Blockly.FieldDropdown(LISTA_OPERADORES), 'OPERADOR')
 
         this.appendValueInput('B')
-            .setCheck('Number');
+            .setCheck('Number')
 
-        this.setOutput(true, 'Number');
-        this.setColour('#facc15');
-        this.setTooltip('Operación matemática');
-        this.setHelpUrl('');
+        this.setOutput(true, 'Number')
+        this.setColour('#facc15')
+        this.setTooltip('Operación matemática')
+        this.setHelpUrl('')
     }
-};
+}
 
 Blockly.Blocks['comparacion'] = {
     init() {
         this.appendValueInput('A')
-            .setCheck(null);
+            .setCheck(null)
 
         this.appendDummyInput()
             .appendField(new Blockly.FieldDropdown([
@@ -37,14 +40,14 @@ Blockly.Blocks['comparacion'] = {
                 ['<', 'MENOR'],
                 ['>=', 'MAYOR_IGUAL'],
                 ['<=', 'MENOR_IGUAL']
-            ]), 'OPERADOR');
+            ]), 'OPERADOR')
 
         this.appendValueInput('B')
-            .setCheck(null);
+            .setCheck(null)
 
-        this.setOutput(true, 'Boolean');
-        this.setColour('#f472b6');
-        this.setTooltip('Comparación entre valores');
-        this.setHelpUrl('');
+        this.setOutput(true, 'Boolean')
+        this.setColour('#f472b6')
+        this.setTooltip('Comparación entre valores')
+        this.setHelpUrl('')
     }
-};
+}
