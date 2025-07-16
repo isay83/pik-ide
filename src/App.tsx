@@ -81,7 +81,7 @@ export default function App() {
         </div>
 
         {/* Panel de código + Consola en misma fila */}
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Código PIK */}
           <div className="flex-1 bg-white rounded-lg shadow-md p-4">
             <div className="flex justify-between items-center mb-3">
