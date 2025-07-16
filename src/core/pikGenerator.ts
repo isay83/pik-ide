@@ -148,12 +148,6 @@ PikGenerator.comentario_bloque = block => {
     return code
 }
 PikGenerator.forBlock["comentario_bloque"] = PikGenerator.comentario_bloque
-// PARÉNTESIS
-PikGenerator.parentesis = block => {
-    const expr = PikGenerator.valueToCode(block, "EXPR", ORDER_NONE) || ""
-    return [`(${expr})`, ORDER_NONE]
-}
-PikGenerator.forBlock["parentesis"] = PikGenerator.parentesis
 // SALTO DE LÍNEA
 PikGenerator.salto_linea = (block) => {
     const next = PikGenerator.valueToCode(block, "NEXT", ORDER_NONE) || '""';
@@ -185,7 +179,12 @@ PikGenerator.comparacion = block => {
     return [`${a} ${comparadores[key]} ${b}`, ORDER_NONE]
 }
 PikGenerator.forBlock['comparacion'] = PikGenerator.comparacion
-
+// PARÉNTESIS
+PikGenerator.parentesis = block => {
+    const expr = PikGenerator.valueToCode(block, "EXPR", ORDER_NONE) || ""
+    return [`(${expr})`, ORDER_NONE]
+}
+PikGenerator.forBlock["parentesis"] = PikGenerator.parentesis
 // ============================= OPERADORES LÓGICOS =============================
 // Y
 PikGenerator.y = block => {
@@ -325,7 +324,7 @@ PikGenerator.funcion = block => {
     const body = PikGenerator.statementToCode(block, "CUERPO")
     let code = `funcion ${name}(${params}):\n`
     code += PikGenerator.prefixLines(body, INDENT)
-    return code
+    return code + appendNext(block);
 }
 PikGenerator.forBlock["funcion"] = PikGenerator.funcion
 // Retornar valor
@@ -342,7 +341,7 @@ PikGenerator.llamar_funcion = block => {
         ?.split(",")
         .map((p: string) => p.trim())
         .join(", ") || ""
-    return [`${name}(${params})`, ORDER_NONE]
+    return [`${name}(${params})\n${appendNext(block)}`, ORDER_NONE]
 }
 PikGenerator.forBlock["llamar_funcion"] = PikGenerator.llamar_funcion
 

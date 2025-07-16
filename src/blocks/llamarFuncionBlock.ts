@@ -12,6 +12,8 @@ Blockly.Blocks["llamar_funcion"] = {
             .appendField(")");
 
         this.setOutput(true, null)
+        this.setPreviousStatement(true)
+        this.setNextStatement(true)
         this.setColour("#facc15")
         this.setTooltip("Llama a una función y devuelve el resultado")
         this.setHelpUrl("")

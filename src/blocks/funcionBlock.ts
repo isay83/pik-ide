@@ -13,7 +13,7 @@ Blockly.Blocks["funcion"] = {
         this.appendStatementInput("CUERPO")
             .setCheck(null)
 
-        this.setPreviousStatement(false)
+        this.setPreviousStatement(true)
         this.setNextStatement(true)
         this.setColour("#c084fc")
         this.setTooltip("Define una función con parámetros y cuerpo")
