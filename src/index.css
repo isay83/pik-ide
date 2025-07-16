@@ -1,2 +1,9 @@
 /* src/index.css*/
 @import "tailwindcss";
+
+/* Hacer invisibles las scrollbars pero dejarlas funcionales */
+.blocklyScrollbarBackground,
+.blocklyScrollbarHandle {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

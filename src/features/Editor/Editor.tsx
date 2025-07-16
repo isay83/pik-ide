@@ -38,10 +38,30 @@ export default function Editor({
         renderer: "thrasos",
         theme: pikTheme,
         trashcan: true,
-        scrollbars: false,
-        zoom: { controls: true, wheel: true },
+        move: {
+          drag: true,
+          wheel: true,
+          scrollbars: true,
+        },
+        modalInputs: true,
+        zoom: { controls: true, wheel: false, startScale: 1.0 },
         grid: { spacing: 25, length: 3, colour: "#ccc", snap: true },
       });
+
+      // Centrar y resize tras montarse
+      setTimeout(() => {
+        Blockly.svgResize(workspaceInstance.current!);
+        const ws = workspaceInstance.current!;
+        if (typeof ws.scrollCenter === "function") {
+          ws.scrollCenter();
+        } else {
+          const m = ws.getMetrics()!;
+          ws.scroll(
+            (m.contentWidth - m.viewWidth) / 2 + m.absoluteLeft,
+            (m.contentHeight - m.viewHeight) / 2 + m.absoluteTop
+          );
+        }
+      }, 50);
 
       // Actualizar código al cambiar bloques
       workspaceInstance.current.addChangeListener(() => {
