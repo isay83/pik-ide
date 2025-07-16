@@ -97,12 +97,21 @@ export default function Editor({
   return (
     <div className="relative h-full w-full border rounded shadow-inner overflow-hidden">
       {/* 1) Botón siempre visible */}
-      <button
-        onClick={toggleMenu}
-        className="absolute top-3 left-3 z-30 bg-white border rounded px-3 py-1 shadow text-sm text-blue-700 hover:bg-blue-50"
+      {/* Botón flotante: alineado fuera del contenido principal */}
+      <div
+        className={`
+    absolute z-30 top-4
+    ${menuVisible ? "left-72" : "left-4"} 
+    transition-all duration-300
+  `}
       >
-        {menuVisible ? "⬅ Cerrar" : "☰ Bloques"}
-      </button>
+        <button
+          onClick={toggleMenu}
+          className="bg-white border rounded px-3 py-1 shadow text-sm text-blue-700 hover:bg-blue-50"
+        >
+          {menuVisible ? "← Ocultar" : "☰ Bloques"}
+        </button>
+      </div>
 
       {/* 2) Panel flotante */}
       {menuVisible && workspaceInstance.current && (
