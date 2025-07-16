@@ -4,6 +4,7 @@ import { CodeView, Editor } from "./features";
 import { PikInterpreter } from "./core/pikInterpreter";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import coldark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import "./blocks";
 
 export default function App() {
@@ -42,20 +43,38 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-100 p-4">
       <div className="max-w-full mx-auto space-y-6">
-        <header className="text-center mb-4">
-          <h1 className="text-4xl font-bold text-blue-800 mb-2">
-            🎯 PIK Visual
-          </h1>
-          <p className="text-gray-600">
-            Aprende a programar con bloques visuales
-          </p>
+        <header className="flex flex-col md:flex-row items-center justify-center mb-4 gap-4 text-center md:text-left">
+          <DotLottieReact
+            src="/animations/say-hi.lottie"
+            loop
+            autoplay
+            className="w-40 md:w-60 lg:w-72"
+          />
+
+          <div>
+            <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-[#fdafcc] via-[#d6bee2] to-[#a3d1fe] text-transparent bg-clip-text drop-shadow-md">
+              PIK Visual
+            </h1>
+            <p className="text-gray-600 text-lg mt-2">
+              Aprende a programar con bloques visuales
+            </p>
+          </div>
         </header>
 
         {/* Editor de bloques */}
         <div className="bg-white rounded-lg shadow-md p-4">
-          <h2 className="text-xl font-bold text-gray-800 mb-3">
-            🧩 Editor de Bloques
-          </h2>
+          <div className="flex items-center gap-3 mb-3">
+            <DotLottieReact
+              src="/animations/heart.lottie"
+              loop
+              autoplay
+              className="w-14 md:w-32 lg:w-40"
+            />
+            <h2 className="text-2xl font-bold text-pink-600 drop-shadow-sm">
+              Editor de Bloques
+            </h2>
+          </div>
+
           <div className="flex h-[500px] border rounded overflow-hidden">
             <Editor onCodeUpdate={handleCodeUpdate} />
           </div>
@@ -66,21 +85,66 @@ export default function App() {
           {/* Código PIK */}
           <div className="flex-1 bg-white rounded-lg shadow-md p-4">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-xl font-bold text-gray-800">📝 Código PIK</h2>
+              {/* Título con animación */}
+              <div className="flex items-center gap-2">
+                <DotLottieReact
+                  src="/animations/code.lottie"
+                  loop
+                  autoplay
+                  className="w-14 md:w-32 lg:w-40"
+                />
+                <h2 className="text-2xl font-bold text-blue-700 drop-shadow-sm">
+                  Código PIK
+                </h2>
+              </div>
+
+              {/* Botón con animación condicional */}
               <button
                 onClick={handleRunCode}
                 disabled={isRunning || !pikCode.trim()}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-4 py-2 bg-[#9f9f9f] text-white rounded hover:bg-[#7e7e7e] disabled:bg-gray-300 cursor-pointer disabled:cursor-not-allowed flex items-center gap-2"
               >
-                {isRunning ? "⏳ Ejecutando..." : "▶️ Ejecutar"}
+                {isRunning ? (
+                  <>
+                    <DotLottieReact
+                      src="/animations/loading.lottie"
+                      loop
+                      autoplay
+                      className="w-12"
+                    />
+                    Ejecutando...
+                  </>
+                ) : (
+                  <>
+                    <DotLottieReact
+                      src="/animations/run.lottie"
+                      loop
+                      autoplay={!isRunning || !!pikCode.trim()}
+                      className="w-12"
+                    />
+                    Ejecutar
+                  </>
+                )}
               </button>
             </div>
+
             <CodeView code={pikCode} />
           </div>
 
           {/* Consola */}
           <div className="flex-1 bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
-            <h2 className="text-xl font-bold mb-3">🖥️ Consola de Salida</h2>
+            <div className="flex items-center gap-2 mb-3">
+              <DotLottieReact
+                src="/animations/terminal.lottie"
+                loop
+                autoplay
+                className="w-10 md:w-12 lg:w-16"
+              />
+              <h2 className="text-2xl font-bold text-purple-300 drop-shadow-sm">
+                Consola de Salida
+              </h2>
+            </div>
+
             <SyntaxHighlighter
               className="whitespace-pre-wrap text-base lg:text-lg xl:text-xl h-60 overflow-auto"
               language="bash"
