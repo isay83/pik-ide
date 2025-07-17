@@ -7,16 +7,18 @@ import { PikGenerator } from "../../core";
 export default function Editor({
   onCodeUpdate,
   isCodeEditable,
+  workspaceRef,
 }: {
   onCodeUpdate: (code: string) => void;
   isCodeEditable: boolean;
+  workspaceRef: React.MutableRefObject<Blockly.WorkspaceSvg | null>;
 }) {
-  const workspaceRef = useRef<HTMLDivElement>(null);
+  const workspaceDivRef = useRef<HTMLDivElement>(null);
   const workspaceInstance = useRef<Blockly.WorkspaceSvg | null>(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
-    const el = workspaceRef.current;
+    const el = workspaceDivRef.current;
     if (!el) return;
 
     const handleDragOver = (e: DragEvent) => {
@@ -54,8 +56,8 @@ export default function Editor({
     });
 
     // Inject Blockly once
-    if (workspaceRef.current && !workspaceInstance.current) {
-      workspaceInstance.current = Blockly.inject(workspaceRef.current, {
+    if (workspaceDivRef.current && !workspaceInstance.current) {
+      workspaceInstance.current = Blockly.inject(workspaceDivRef.current, {
         renderer: "thrasos",
         theme: pikTheme,
         trashcan: true,
@@ -68,6 +70,22 @@ export default function Editor({
         zoom: { controls: true, wheel: false, startScale: 1.0 },
         grid: { spacing: 25, length: 3, colour: "#ccc", snap: true },
       });
+      workspaceRef.current = workspaceInstance.current;
+
+      // ⬇️ Restaurar bloques guardados
+      const savedXml = localStorage.getItem("pikWorkspaceXml");
+      if (savedXml) {
+        try {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(savedXml, "text/xml");
+          Blockly.Xml.domToWorkspace(
+            xmlDoc.documentElement,
+            workspaceInstance.current!
+          );
+        } catch (err) {
+          console.error("❌ Error restaurando bloques:", err);
+        }
+      }
 
       // Centrar y resize tras montarse
       setTimeout(() => {
@@ -88,20 +106,26 @@ export default function Editor({
       workspaceInstance.current.addChangeListener(() => {
         const code = PikGenerator.workspaceToCode(workspaceInstance.current!);
         onCodeUpdate(code);
+        // Al cambiar, guarda el XML en localStorage
+        const xml = Blockly.Xml.workspaceToDom(workspaceInstance.current!);
+        const xmlText = Blockly.Xml.domToText(xml);
+        localStorage.setItem("pikWorkspaceXml", xmlText);
       });
     }
 
     return () => {
       workspaceInstance.current?.dispose();
       workspaceInstance.current = null;
+      /*
       el.removeEventListener("dragover", handleDragOver);
       el.removeEventListener("drop", handleDrop);
+      */
     };
-  }, [onCodeUpdate, isCodeEditable]);
+  }, [onCodeUpdate, isCodeEditable, workspaceRef]);
 
   // Efecto para deshabilitar interacciones y atenuar el workspace
   useEffect(() => {
-    const el = workspaceRef.current;
+    const el = workspaceDivRef.current;
     if (!el) return;
     el.style.pointerEvents = isCodeEditable ? "none" : "auto";
     el.style.opacity = isCodeEditable ? "0.5" : "1";
@@ -161,7 +185,7 @@ export default function Editor({
       )}
 
       {/* 3) Workspace ocupa todo el fondo */}
-      <div ref={workspaceRef} className="absolute inset-0" />
+      <div ref={workspaceDivRef} className="absolute inset-0" />
     </div>
   );
 }

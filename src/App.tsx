@@ -1,5 +1,6 @@
 // src/App.tsx
 import { useCallback, useState, useEffect, useRef } from "react";
+import * as Blockly from "blockly";
 import { CodeView, Editor } from "./features";
 import { PikInterpreter } from "./core/pikInterpreter";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -10,13 +11,23 @@ import { Toggle } from "./components";
 import "./blocks";
 
 export default function App() {
-  const [pikCode, setPikCode] = useState("");
+  const [pikCode, setPikCode] = useState(() => {
+    // LAST
+    return localStorage.getItem("pikCode") || "";
+  });
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [isCodeEditable, setIsCodeEditable] = useState(false);
+  const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
 
   const handleCodeUpdate = useCallback((code: string) => {
     setPikCode(code);
+
+    if (workspaceRef.current) {
+      const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
+      const xmlText = Blockly.Xml.domToText(xml);
+      localStorage.setItem("pikWorkspaceXml", xmlText);
+    }
   }, []);
 
   // Para persistir en localStorage
@@ -53,6 +64,15 @@ export default function App() {
     // reset para que puedas volver a seleccionar el mismo archivo
     e.target.value = "";
   }, []);
+
+  const clearWorkspace = () => {
+    if (workspaceRef.current) {
+      workspaceRef.current.clear();
+      setPikCode("");
+      localStorage.removeItem("pikCode");
+      localStorage.removeItem("pikWorkspaceXml");
+    }
+  };
 
   // Ejecutar código
   const handleRunCode = useCallback(async () => {
@@ -101,22 +121,33 @@ export default function App() {
 
         {/* Editor de bloques */}
         <div className="bg-white rounded-lg shadow-md p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <Lottie
-              animationData={heart}
-              loop
-              autoplay
-              className="w-14 md:w-32 lg:w-40"
-            />
-            <h2 className="text-2xl font-bold text-pink-600 drop-shadow-sm">
-              Editor de Bloques
-            </h2>
+          <div className="relative flex justify-between items-center mb-3">
+            <div className="flex items-center gap-3 mb-3">
+              <Lottie
+                animationData={heart}
+                loop
+                autoplay
+                className="w-14 md:w-32 lg:w-40"
+              />
+              <h2 className="text-2xl font-bold text-pink-600 drop-shadow-sm">
+                Editor de Bloques
+              </h2>
+            </div>
+            {!isCodeEditable && (
+              <button
+                onClick={clearWorkspace}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition cursor-pointer lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2"
+              >
+                🧹 Limpiar
+              </button>
+            )}
           </div>
 
           <div className="flex h-[500px] border rounded overflow-hidden">
             <Editor
               onCodeUpdate={handleCodeUpdate}
               isCodeEditable={isCodeEditable}
+              workspaceRef={workspaceRef}
             />
           </div>
         </div>
@@ -183,16 +214,16 @@ export default function App() {
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={saveCode}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-md shadow hover:bg-emerald-700 transition"
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-md shadow hover:bg-emerald-700 transition cursor-pointer"
                 >
-                  💾 Guardar .pik
+                  💾 Guardar
                 </button>
 
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-md shadow hover:bg-sky-700 transition"
+                  className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-md shadow hover:bg-sky-700 transition cursor-pointer"
                 >
-                  📂 Cargar .pik
+                  📂 Cargar
                 </button>
                 <input
                   type="file"
@@ -206,9 +237,9 @@ export default function App() {
                 {isCodeEditable && (
                   <button
                     onClick={() => setPikCode("")}
-                    className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-md shadow hover:bg-rose-700 transition"
+                    className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-md shadow hover:bg-rose-700 transition cursor-pointer"
                   >
-                    🧹 Limpiar código
+                    🧹 Limpiar
                   </button>
                 )}
               </div>
