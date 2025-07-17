@@ -4,7 +4,6 @@ import { CodeView, Editor } from "./features";
 import { PikInterpreter } from "./core/pikInterpreter";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import coldark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
-//import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import Lottie from "lottie-react";
 import { hi, heart, code, run, loading, terminal } from "./assets";
 import "./blocks";
@@ -84,7 +83,7 @@ export default function App() {
         {/* Panel de código + Consola en misma fila */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Código PIK */}
-          <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+          <div className="flex-1 transition-all duration-300 ease-in-out bg-white rounded-lg shadow-md p-4">
             <div className="flex justify-between items-center mb-3">
               {/* Título con animación */}
               <div className="flex items-center gap-2">
@@ -92,7 +91,7 @@ export default function App() {
                   animationData={code}
                   loop
                   autoplay
-                  className="w-14 md:w-32 lg:w-40"
+                  className="w-8 md:w-24 lg:w-32"
                 />
                 <h2 className="text-2xl font-bold text-blue-700 drop-shadow-sm">
                   Código PIK
@@ -133,7 +132,7 @@ export default function App() {
           </div>
 
           {/* Consola */}
-          <div className="flex-1 bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
+          <div className="flex-1 transition-all duration-300 ease-in-out bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
             <div className="flex items-center gap-2 mb-3">
               <Lottie
                 animationData={terminal}
@@ -146,13 +145,17 @@ export default function App() {
               </h2>
             </div>
 
-            <SyntaxHighlighter
-              className="whitespace-pre-wrap text-base lg:text-lg xl:text-xl h-60 overflow-auto"
-              language="bash"
-              style={coldark}
-            >
-              {output || "Presiona 'Ejecutar' para ver la salida..."}
-            </SyntaxHighlighter>
+            <div className="h-[300px] sm:h-[340px] md:h-[380px] lg:h-[420px] xl:h-[460px] max-h-[60vh] border-dashed border-2 border-gray-700 rounded overflow-auto">
+              <SyntaxHighlighter
+                customStyle={{ overflow: "visible" }}
+                wrapLongLines={true}
+                className="h-full whitespace-pre-wrap text-base lg:text-lg xl:text-xl"
+                language="bash"
+                style={coldark}
+              >
+                {output || "Presiona 'Ejecutar' para ver la salida..."}
+              </SyntaxHighlighter>
+            </div>
           </div>
         </div>
       </div>
