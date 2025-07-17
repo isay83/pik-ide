@@ -89,24 +89,6 @@ export default function Editor({
         const code = PikGenerator.workspaceToCode(workspaceInstance.current!);
         onCodeUpdate(code);
       });
-
-      // Drag & drop desde el Panel
-      /*
-      function onDragOver(e: DragEvent) {
-        if (!isCodeEditable) e.preventDefault();
-      }
-      function onDrop(e: DragEvent) {
-        if (isCodeEditable) return;
-        const xml = e.dataTransfer?.getData("text/plain");
-        if (!xml) return;
-        */
-      /* ts-expect-error trusted*/
-      /*const dom = Blockly.Xml.textToDom(xml);
-        Blockly.Xml.domToWorkspace(dom, workspaceInstance.current!);
-      }
-      workspaceRef.current.addEventListener("dragover", onDragOver);
-      workspaceRef.current.addEventListener("drop", onDrop);
-      */
     }
 
     return () => {

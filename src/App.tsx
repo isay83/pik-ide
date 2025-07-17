@@ -168,46 +168,50 @@ export default function App() {
                 )}
               </button>
             </div>
-
-            {/* AQUÍ IRÁN LAS OPCIONES PARA EL EDITOR DE CÓDIGO (GUARDAR, CARGAR, TOGGLE, ETC)*/}
             {/* ─────────────── Opciones del editor de código ─────────────── */}
-            <div className="flex flex-wrap gap-2 mb-4 items-center">
-              {/* Toggle para modo edición */}
-              <Toggle
-                checked={isCodeEditable}
-                onCheckedChange={setIsCodeEditable}
-                label={isCodeEditable ? "Modo Editor" : "Modo Bloques"}
-              />
-              <button
-                onClick={saveCode}
-                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                Guardar .pik
-              </button>
+            <div className="flex flex-wrap gap-4 mb-4 items-center">
+              {/* Toggle con separación */}
+              <div className="border border-gray-300 rounded px-3 py-2 bg-gray-100 shadow-sm">
+                <Toggle
+                  checked={isCodeEditable}
+                  onCheckedChange={setIsCodeEditable}
+                  label={isCodeEditable ? "Modo Editor" : "Modo Bloques"}
+                />
+              </div>
 
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Cargar .pik
-              </button>
-              <input
-                type="file"
-                accept=".pik,text/plain"
-                ref={fileInputRef}
-                onChange={loadCode}
-                className="hidden"
-              />
-
-              {/* Limpiar sólo si estoy en modo edición */}
-              {isCodeEditable && (
+              {/* Botones funcionales */}
+              <div className="flex flex-wrap gap-3">
                 <button
-                  onClick={() => setPikCode("")}
-                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  onClick={saveCode}
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-md shadow hover:bg-emerald-700 transition"
                 >
-                  Limpiar código
+                  💾 Guardar .pik
                 </button>
-              )}
+
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-md shadow hover:bg-sky-700 transition"
+                >
+                  📂 Cargar .pik
+                </button>
+                <input
+                  type="file"
+                  accept=".pik"
+                  ref={fileInputRef}
+                  onChange={loadCode}
+                  className="hidden"
+                />
+
+                {/* Limpiar sólo si estoy en modo edición */}
+                {isCodeEditable && (
+                  <button
+                    onClick={() => setPikCode("")}
+                    className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-md shadow hover:bg-rose-700 transition"
+                  >
+                    🧹 Limpiar código
+                  </button>
+                )}
+              </div>
             </div>
             {/* ─────────────────────────────────────────────────────────────── */}
 

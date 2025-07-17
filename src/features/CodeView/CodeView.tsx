@@ -18,7 +18,12 @@ export default function CodeView({
   return (
     <div className="h-[300px] sm:h-[340px] md:h-[380px] lg:h-[420px] xl:h-[460px] max-h-[60vh] border-dashed border-2 border-gray-300 rounded overflow-auto">
       <CodeMirror
-        value={code || "// Arrastra bloques para generar código PIK..."}
+        value={code}
+        placeholder={
+          isEditable
+            ? "// Escribe tu código PIK aquí..."
+            : "// Arrastra bloques para generar código PIK..."
+        }
         onChange={onChange}
         height="100%"
         theme={pikTheme}
