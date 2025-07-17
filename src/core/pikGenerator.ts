@@ -1,3 +1,4 @@
+// src/core/pikGenerator.ts
 import * as Blockly from 'blockly'
 // cSpell:ignore operadores comparadores
 
@@ -15,6 +16,7 @@ function appendNext(block: Blockly.Block): string {
 
 // Interfaz con la firma exacta de cada método
 interface PikBlockGenerator {
+    inStructuredContext: boolean
     // Acciones de Pik
     mostrar(block: Blockly.Block): string
     guardar(block: Blockly.Block): string
@@ -56,7 +58,7 @@ interface PikBlockGenerator {
     // Funciones
     funcion(block: Blockly.Block): string
     retornar(block: Blockly.Block): string
-    llamar_funcion(block: Blockly.Block): [string, number]
+    llamar_funcion(block: Blockly.Block): string
 }
 
 // operación aritmética
@@ -81,6 +83,8 @@ type ComparadorKey = keyof typeof comparadores
 
 // Creamos la instancia y la casteamos a nuestra interfaz
 export const PikGenerator = new Blockly.Generator('Pik') as Blockly.Generator & PikBlockGenerator
+// Bandera para indicar si estamos en un contexto estructurado
+PikGenerator.inStructuredContext = false;
 
 // Bloques de código
 
@@ -88,21 +92,36 @@ export const PikGenerator = new Blockly.Generator('Pik') as Blockly.Generator & 
 // MOSTRAR
 PikGenerator.mostrar = block => {
     const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '""'
-    return `mostrar ${val}\n` + appendNext(block)
+    let code = `mostrar ${val}\n`
+
+    if (!PikGenerator.inStructuredContext) {
+        code += appendNext(block)
+    }
+    return code
 }
 PikGenerator.forBlock['mostrar'] = PikGenerator.mostrar
 // GUARDAR
 PikGenerator.guardar = block => {
     const val = PikGenerator.valueToCode(block, 'VALOR', ORDER_NONE) || '0'
     const name = block.getField('VAR')?.getText() || 'item'
-    return `guardar ${val} en ${name}\n` + appendNext(block)
+    let code = `guardar ${val} en ${name}\n`
+
+    if (!PikGenerator.inStructuredContext) {
+        code += appendNext(block)
+    }
+    return code
 }
 PikGenerator.forBlock['guardar'] = PikGenerator.guardar
 // PREGUNTAR
 PikGenerator.preguntar = block => {
     const question = PikGenerator.valueToCode(block, 'PREGUNTA', ORDER_NONE) || '""'
     const variable = block.getField('VAR')?.getText() || 'item'
-    return `preguntar ${question} guardar en ${variable}\n` + appendNext(block)
+    let code = `preguntar ${question} guardar en ${variable}\n`
+
+    if (!PikGenerator.inStructuredContext) {
+        code += appendNext(block)
+    }
+    return code
 }
 PikGenerator.forBlock['preguntar'] = PikGenerator.preguntar
 // CONCATENAR
@@ -159,13 +178,25 @@ PikGenerator.forBlock["constante"] = PikGenerator.constante
 // COMENTARIO DE UNA LÍNEA
 PikGenerator.comentario = block => {
     const txt = block.getFieldValue("TEXTO") || ""
-    return `// ${txt}\n` + appendNext(block)
+    let code = `// ${txt}\n`
+
+    if (!PikGenerator.inStructuredContext) {
+        code += appendNext(block)
+    }
+    return code
 }
 PikGenerator.forBlock["comentario"] = PikGenerator.comentario
 // COMENTARIO DE VARIAS LÍNEAS
 PikGenerator.comentario_bloque = block => {
     let code = "/*\n"
+
+    const prevContext = PikGenerator.inStructuredContext;
+    PikGenerator.inStructuredContext = true;
+
     const body = PikGenerator.statementToCode(block, "LINEAS")
+
+    PikGenerator.inStructuredContext = prevContext;
+
     code += PikGenerator.prefixLines(body, INDENT)
     code += "*/\n"
     return code
@@ -233,8 +264,14 @@ PikGenerator.forBlock["no"] = PikGenerator.no
 // =================== SI/SINO =============================
 PikGenerator.si = block => {
     const cond = PikGenerator.valueToCode(block, 'CONDICION', ORDER_NONE) || 'falso'
+
+    const prevContext = PikGenerator.inStructuredContext;
+    PikGenerator.inStructuredContext = true;
+
     const thenBranch = PikGenerator.statementToCode(block, 'HACER')
     const elseBranch = PikGenerator.statementToCode(block, 'SINO')
+
+    PikGenerator.inStructuredContext = prevContext;
 
     let code = `si ${cond}:\n`
     code += PikGenerator.prefixLines(thenBranch, INDENT)
@@ -250,9 +287,15 @@ PikGenerator.forBlock['si'] = PikGenerator.si
 // ============================== BUCLE PARA =============================
 PikGenerator.para = block => {
     const varName = block.getFieldValue('VAR')!
+
+    const prevContext = PikGenerator.inStructuredContext;
+    PikGenerator.inStructuredContext = true;
+
     const desde = PikGenerator.valueToCode(block, 'DESDE', ORDER_NONE) || '0'
     const hasta = PikGenerator.valueToCode(block, 'HASTA', ORDER_NONE) || '0'
     const body = PikGenerator.statementToCode(block, 'HACER')
+
+    PikGenerator.inStructuredContext = prevContext;
 
     let code = `para ${varName} desde ${desde} hasta ${hasta}:\n`
     code += PikGenerator.prefixLines(body, INDENT)
@@ -263,7 +306,13 @@ PikGenerator.forBlock["para"] = PikGenerator.para
 // ============================== BUCLE REPETIR =============================
 PikGenerator.repetir = block => {
     const times = PikGenerator.valueToCode(block, 'VECES', ORDER_NONE) || '1'
+
+    const prevContext = PikGenerator.inStructuredContext;
+    PikGenerator.inStructuredContext = true;
+
     const body = PikGenerator.statementToCode(block, 'HACER')
+
+    PikGenerator.inStructuredContext = prevContext;
 
     let code = `repetir ${times} veces:\n`
     code += PikGenerator.prefixLines(body, INDENT)
@@ -274,7 +323,13 @@ PikGenerator.forBlock['repetir'] = PikGenerator.repetir
 // ============================== BUCLE MIENTRAS =============================
 PikGenerator.mientras = block => {
     const cond = PikGenerator.valueToCode(block, "CONDICION", ORDER_NONE) || "falso"
+
+    const prevContext = PikGenerator.inStructuredContext;
+    PikGenerator.inStructuredContext = true;
+
     const body = PikGenerator.statementToCode(block, "HACER")
+
+    PikGenerator.inStructuredContext = prevContext;
 
     let code = `mientras ${cond}:\n`
     code += PikGenerator.prefixLines(body, INDENT)
@@ -286,8 +341,14 @@ PikGenerator.forBlock["mientras"] = PikGenerator.mientras
 // SEGUN
 PikGenerator.segun = block => {
     const expr = PikGenerator.valueToCode(block, "EXPRESION", ORDER_NONE) || ""
+
+    const prevContext = PikGenerator.inStructuredContext;
+    PikGenerator.inStructuredContext = true;
+
     const casesCode = PikGenerator.statementToCode(block, "CASOS")
     const defaultCode = PikGenerator.statementToCode(block, "DEFECTO")
+
+    PikGenerator.inStructuredContext = prevContext;
 
     let code = `segun ${expr}:\n`
     code += PikGenerator.prefixLines(casesCode, INDENT)
@@ -302,7 +363,14 @@ PikGenerator.forBlock["segun"] = PikGenerator.segun
 // CASOS
 PikGenerator.caso = block => {
     const val = block.getFieldValue("VALOR")!
+
+    const prevContext = PikGenerator.inStructuredContext;
+    PikGenerator.inStructuredContext = true;
+
     const body = PikGenerator.statementToCode(block, "CUERPO")
+
+    PikGenerator.inStructuredContext = prevContext;
+
     let code = `caso ${val}:\n`
     code += PikGenerator.prefixLines(body, INDENT)
     return code
@@ -339,12 +407,19 @@ PikGenerator.forBlock["booleano"] = PikGenerator.booleano
 // Definir función
 PikGenerator.funcion = block => {
     const name = block.getFieldValue("NOMBRE")!
+
+    const prevContext = PikGenerator.inStructuredContext;
+    PikGenerator.inStructuredContext = true;
+
     const params = block
         .getFieldValue("PARAMS")
         ?.split(",")
         .map((p: string) => p.trim())
         .join(", ") || ""
     const body = PikGenerator.statementToCode(block, "CUERPO")
+
+    PikGenerator.inStructuredContext = prevContext;
+
     let code = `funcion ${name}(${params}):\n`
     code += PikGenerator.prefixLines(body, INDENT)
     return code + appendNext(block)
@@ -353,7 +428,7 @@ PikGenerator.forBlock["funcion"] = PikGenerator.funcion
 // Retornar valor
 PikGenerator.retornar = block => {
     const val = PikGenerator.valueToCode(block, "VALOR", ORDER_NONE) || ""
-    return `retornar ${val}\n` + appendNext(block)
+    return `retornar ${val}\n`
 }
 PikGenerator.forBlock["retornar"] = PikGenerator.retornar
 // Llamar función
@@ -364,7 +439,12 @@ PikGenerator.llamar_funcion = block => {
         ?.split(",")
         .map((p: string) => p.trim())
         .join(", ") || ""
-    return [`${name}(${params})\n${appendNext(block)}`, ORDER_NONE]
+    let code = `${name}(${params})\n`
+
+    if (!PikGenerator.inStructuredContext) {
+        code += appendNext(block)
+    }
+    return code
 }
 PikGenerator.forBlock["llamar_funcion"] = PikGenerator.llamar_funcion
 
