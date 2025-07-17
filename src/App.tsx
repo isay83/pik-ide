@@ -4,7 +4,9 @@ import { CodeView, Editor } from "./features";
 import { PikInterpreter } from "./core/pikInterpreter";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import coldark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+//import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import Lottie from "lottie-react";
+import { hi, heart, code, run, loading, terminal } from "./assets";
 import "./blocks";
 
 export default function App() {
@@ -44,13 +46,12 @@ export default function App() {
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-100 p-4">
       <div className="max-w-full mx-auto space-y-6">
         <header className="flex flex-col md:flex-row items-center justify-center mb-4 gap-4 text-center md:text-left">
-          <DotLottieReact
-            src="/animations/say-hi.lottie"
+          <Lottie
+            animationData={hi}
             loop
             autoplay
             className="w-40 md:w-60 lg:w-72"
           />
-
           <div>
             <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-[#fdafcc] via-[#d6bee2] to-[#a3d1fe] text-transparent bg-clip-text drop-shadow-md">
               PIK Visual
@@ -64,8 +65,8 @@ export default function App() {
         {/* Editor de bloques */}
         <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex items-center gap-3 mb-3">
-            <DotLottieReact
-              src="/animations/heart.lottie"
+            <Lottie
+              animationData={heart}
               loop
               autoplay
               className="w-14 md:w-32 lg:w-40"
@@ -87,8 +88,8 @@ export default function App() {
             <div className="flex justify-between items-center mb-3">
               {/* Título con animación */}
               <div className="flex items-center gap-2">
-                <DotLottieReact
-                  src="/animations/code.lottie"
+                <Lottie
+                  animationData={code}
                   loop
                   autoplay
                   className="w-14 md:w-32 lg:w-40"
@@ -106,8 +107,8 @@ export default function App() {
               >
                 {isRunning ? (
                   <>
-                    <DotLottieReact
-                      src="/animations/loading.lottie"
+                    <Lottie
+                      animationData={loading}
                       loop
                       autoplay
                       className="w-12"
@@ -116,10 +117,10 @@ export default function App() {
                   </>
                 ) : (
                   <>
-                    <DotLottieReact
-                      src="/animations/run.lottie"
+                    <Lottie
+                      animationData={run}
                       loop
-                      autoplay={!isRunning || !!pikCode.trim()}
+                      autoplay
                       className="w-12"
                     />
                     Ejecutar
@@ -134,8 +135,8 @@ export default function App() {
           {/* Consola */}
           <div className="flex-1 bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
             <div className="flex items-center gap-2 mb-3">
-              <DotLottieReact
-                src="/animations/terminal.lottie"
+              <Lottie
+                animationData={terminal}
                 loop
                 autoplay
                 className="w-10 md:w-12 lg:w-16"

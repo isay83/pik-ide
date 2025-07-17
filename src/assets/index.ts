@@ -1,3 +1,6 @@
-//import sayHi from "./animations/say-hi.lottie"
-
-//export { sayHi }
+export { default as hi } from "./animations/hi.json"
+export { default as heart } from "./animations/heart.json"
+export { default as code } from "./animations/code.json"
+export { default as run } from "./animations/run.json"
+export { default as loading } from "./animations/loading.json"
+export { default as terminal } from "./animations/terminal.json"
