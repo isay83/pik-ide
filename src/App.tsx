@@ -1,22 +1,60 @@
 // src/App.tsx
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { CodeView, Editor } from "./features";
 import { PikInterpreter } from "./core/pikInterpreter";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import coldark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
 import Lottie from "lottie-react";
 import { hi, heart, code, run, loading, terminal } from "./assets";
+import { Toggle } from "./components";
 import "./blocks";
 
 export default function App() {
   const [pikCode, setPikCode] = useState("");
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [isCodeEditable, setIsCodeEditable] = useState(false);
 
   const handleCodeUpdate = useCallback((code: string) => {
     setPikCode(code);
   }, []);
 
+  // Para persistir en localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("pikCode");
+    if (saved !== null) setPikCode(saved);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("pikCode", pikCode);
+  }, [pikCode]);
+
+  // File input invisible
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Guardar a archivo
+  const saveCode = useCallback(() => {
+    const blob = new Blob([pikCode], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "code.pik";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }, [pikCode]);
+
+  // Cargar desde archivo
+  const loadCode = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setPikCode(ev.target?.result as string);
+    };
+    reader.readAsText(file);
+    // reset para que puedas volver a seleccionar el mismo archivo
+    e.target.value = "";
+  }, []);
+
+  // Ejecutar código
   const handleRunCode = useCallback(async () => {
     if (!pikCode.trim()) {
       setOutput("⚠️ No hay código para ejecutar");
@@ -76,7 +114,10 @@ export default function App() {
           </div>
 
           <div className="flex h-[500px] border rounded overflow-hidden">
-            <Editor onCodeUpdate={handleCodeUpdate} />
+            <Editor
+              onCodeUpdate={handleCodeUpdate}
+              isCodeEditable={isCodeEditable}
+            />
           </div>
         </div>
 
@@ -128,7 +169,53 @@ export default function App() {
               </button>
             </div>
 
-            <CodeView code={pikCode} />
+            {/* AQUÍ IRÁN LAS OPCIONES PARA EL EDITOR DE CÓDIGO (GUARDAR, CARGAR, TOGGLE, ETC)*/}
+            {/* ─────────────── Opciones del editor de código ─────────────── */}
+            <div className="flex flex-wrap gap-2 mb-4 items-center">
+              {/* Toggle para modo edición */}
+              <Toggle
+                checked={isCodeEditable}
+                onCheckedChange={setIsCodeEditable}
+                label={isCodeEditable ? "Modo Editor" : "Modo Bloques"}
+              />
+              <button
+                onClick={saveCode}
+                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Guardar .pik
+              </button>
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Cargar .pik
+              </button>
+              <input
+                type="file"
+                accept=".pik,text/plain"
+                ref={fileInputRef}
+                onChange={loadCode}
+                className="hidden"
+              />
+
+              {/* Limpiar sólo si estoy en modo edición */}
+              {isCodeEditable && (
+                <button
+                  onClick={() => setPikCode("")}
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Limpiar código
+                </button>
+              )}
+            </div>
+            {/* ─────────────────────────────────────────────────────────────── */}
+
+            <CodeView
+              code={pikCode}
+              isEditable={isCodeEditable}
+              onChange={(value) => setPikCode(value)}
+            />
           </div>
 
           {/* Consola */}
