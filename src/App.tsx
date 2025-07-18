@@ -145,6 +145,7 @@ export default function App() {
 
           <div className="flex h-[500px] border rounded overflow-hidden">
             <Editor
+              pikCode={pikCode}
               onCodeUpdate={handleCodeUpdate}
               isCodeEditable={isCodeEditable}
               workspaceRef={workspaceRef}
