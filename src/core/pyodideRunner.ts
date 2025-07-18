@@ -38,13 +38,26 @@ mod.__file__ = "${filename}"
 sys.modules["${name}"] = mod
 exec(${JSON.stringify(src)}, mod.__dict__)
 `;
-        py.runPython(loader);
+        await py.runPythonAsync(loader);
     }
 
-    py.runPython(`from pik_runner import run_pik`);
+    // Reemplazar input de Python por prompt de navegador
+    await py.runPythonAsync(`
+import builtins
+from js import window
 
-    // Ahora tu paquete ya está cargado, llama a run_pik
-    const result = py.runPython(`run_pik(${JSON.stringify(code)})`);
+def prompt_input(msg=""):
+    response = window.prompt(msg)
+    if response is None:
+        raise EOFError("Input cancelled")
+    return response
+
+builtins.input = prompt_input
+`);
+
+    await py.runPythonAsync(`from pik_runner import run_pik`);
+
+    const result = await py.runPythonAsync(`run_pik(${JSON.stringify(code)})`);
 
     return typeof result === 'string' ? result : String(result);
 }
