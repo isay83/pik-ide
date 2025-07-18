@@ -20,23 +20,25 @@ def run_pik(codigo: str) -> str:
         analizador = SemanticAnalyzer()
         analizador.visit(arbol_sintactico)
 
-        # EJECUCIÓN
-        salida = []
-        interprete = Interpreter()
-
-        
+        # EJECUCIÓN CON CAPTURA DE SALIDA
         import io
+        import sys
+        
+        # Capturar stdout
         old_stdout = sys.stdout
         sys.stdout = mystdout = io.StringIO()
-
+        
+        # Ejecutar el intérprete
+        interprete = Interpreter()
         interprete.visit(arbol_sintactico)
-
-        # restaurar stdout
+        
+        # Restaurar stdout y obtener la salida
         sys.stdout = old_stdout
-        salida_str = mystdout.getvalue()
-
-        return salida_str or "✅ Ejecución sin errores."
-    # 2. Captura cada tipo de error con mensaje en español
+        salida_completa = mystdout.getvalue()
+        
+        # Retornar la salida completa
+        return salida_completa if salida_completa else "✅ Ejecución sin errores."
+        
     except (LexicalError, SyntaxErrorPik, SemanticError, InterpreterError) as e:
         return f"ERROR EN EL CÓDIGO: {e}"
     except Exception as e:

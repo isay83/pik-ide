@@ -8,13 +8,15 @@ export async function initPyodide(): Promise<PyodideInterface> {
         pyodide = await loadPyodide({
             indexURL: '/pyodide/',
         });
-        // Asegúrate de tener tipos para ModuleType
         await pyodide.loadPackage('ply');
     }
     return pyodide;
 }
 
-export async function runPik(code: string): Promise<string> {
+export async function runPik(
+    code: string,
+    inputHandler?: (prompt: string) => Promise<string>
+): Promise<string> {
     const py = await initPyodide();
 
     // Lista tus módulos Python
@@ -27,10 +29,9 @@ export async function runPik(code: string): Promise<string> {
     ];
 
     for (const filename of modules) {
-        const name = filename.replace(/\.py$/, '');      // e.g. "lexer"
+        const name = filename.replace(/\.py$/, '');
         const src = await fetch(`/pik/${filename}`).then(r => r.text());
 
-        // Crea el módulo, lo registra y ejecuta su código allí
         const loader = `
 import sys, types
 mod = types.ModuleType("${name}")
@@ -41,10 +42,43 @@ exec(${JSON.stringify(src)}, mod.__dict__)
         py.runPython(loader);
     }
 
+    // Sistema de input que también imprime el prompt
+    py.runPython(`
+import builtins
+import sys
+
+def simple_input(prompt=""):
+    import js
+    # NO imprimir el prompt aquí, ya se maneja en el modal
+    
+    # Obtener la respuesta del usuario
+    if hasattr(js, 'customInputHandler') and js.customInputHandler:
+        result = js.customInputHandler(prompt)
+    else:
+        result = js.window.prompt(prompt)
+    
+    user_input = str(result) if result is not None else ""
+    
+    # NO imprimir la respuesta del usuario aquí tampoco
+    
+    return user_input
+
+builtins.input = simple_input
+`);
+
+    // Configurar el handler personalizado
+    if (inputHandler) {
+        py.globals.set('customInputHandler', inputHandler);
+    }
+
     py.runPython(`from pik_runner import run_pik`);
 
-    // Ahora tu paquete ya está cargado, llama a run_pik
-    const result = py.runPython(`run_pik(${JSON.stringify(code)})`);
+    const runPikFunc = py.globals.get('run_pik');
 
-    return typeof result === 'string' ? result : String(result);
+    try {
+        const result = await runPikFunc(code);
+        return typeof result === 'string' ? result : String(result);
+    } finally {
+        runPikFunc.destroy();
+    }
 }

@@ -1,10 +1,8 @@
 // src/App.tsx
 import { useCallback, useState, useEffect, useRef } from "react";
 import * as Blockly from "blockly";
-import { CodeView, Editor } from "./features";
+import { CodeView, Editor, Terminal } from "./features";
 import { PikInterpreter } from "./core/pikInterpreter";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import coldark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
 import Lottie from "lottie-react";
 import { hi, heart, code, run, loading, terminal } from "./assets";
 import { Toggle } from "./components";
@@ -12,13 +10,17 @@ import "./blocks";
 
 export default function App() {
   const [pikCode, setPikCode] = useState(() => {
-    // LAST
     return localStorage.getItem("pikCode") || "";
   });
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [isCodeEditable, setIsCodeEditable] = useState(false);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
+  const [isWaitingForInput, setIsWaitingForInput] = useState(false);
+  const [inputPrompt, setInputPrompt] = useState("");
+  const [inputResolver, setInputResolver] = useState<
+    ((value: string) => void) | null
+  >(null);
 
   const handleCodeUpdate = useCallback((code: string) => {
     setPikCode(code);
@@ -35,6 +37,7 @@ export default function App() {
     const saved = localStorage.getItem("pikCode");
     if (saved !== null) setPikCode(saved);
   }, []);
+
   useEffect(() => {
     localStorage.setItem("pikCode", pikCode);
   }, [pikCode]);
@@ -61,7 +64,6 @@ export default function App() {
       setPikCode(ev.target?.result as string);
     };
     reader.readAsText(file);
-    // reset para que puedas volver a seleccionar el mismo archivo
     e.target.value = "";
   }, []);
 
@@ -86,18 +88,45 @@ export default function App() {
 
     try {
       const interpreter = new PikInterpreter();
+
+      // Configurar el handler de input personalizado
+      interpreter.setInputHandler(async (prompt: string) => {
+        setInputPrompt(prompt);
+        setIsWaitingForInput(true);
+
+        return new Promise((resolve) => {
+          setInputResolver(() => resolve);
+        });
+      });
+
       const result = await interpreter.execute(pikCode);
-      setOutput(result);
+      setOutput((prev) => prev + result);
     } catch (error) {
       setOutput(
-        `❌ Error: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+        (prev) =>
+          prev +
+          `❌ Error: ${
+            error instanceof Error ? error.message : "Error desconocido"
+          }`
       );
     } finally {
       setIsRunning(false);
+      setIsWaitingForInput(false);
     }
   }, [pikCode]);
+
+  // Función para manejar la respuesta del modal:
+  const handleModalInput = useCallback(
+    (input: string) => {
+      if (inputResolver) {
+        setOutput((prev) => prev + inputPrompt + input + "\n");
+        inputResolver(input);
+        setInputResolver(null);
+      }
+      setIsWaitingForInput(false);
+    },
+    [inputPrompt, inputResolver]
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-100 p-4">
@@ -152,12 +181,11 @@ export default function App() {
           </div>
         </div>
 
-        {/* Panel de código + Consola en misma fila */}
+        {/* Panel de código + Terminal en misma fila */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Código PIK */}
           <div className="flex-1 transition-all duration-300 ease-in-out bg-white rounded-lg shadow-md p-4">
             <div className="flex justify-between items-center mb-3">
-              {/* Título con animación */}
               <div className="flex items-center gap-2">
                 <Lottie
                   animationData={code}
@@ -170,7 +198,6 @@ export default function App() {
                 </h2>
               </div>
 
-              {/* Botón con animación condicional */}
               <button
                 onClick={handleRunCode}
                 disabled={isRunning || !pikCode.trim()}
@@ -199,9 +226,8 @@ export default function App() {
                 )}
               </button>
             </div>
-            {/* ─────────────── Opciones del editor de código ─────────────── */}
+
             <div className="flex flex-wrap gap-4 mb-4 items-center">
-              {/* Toggle con separación */}
               <div className="border border-gray-300 rounded px-3 py-2 bg-gray-100 shadow-sm">
                 <Toggle
                   checked={isCodeEditable}
@@ -210,7 +236,6 @@ export default function App() {
                 />
               </div>
 
-              {/* Botones funcionales */}
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={saveCode}
@@ -233,7 +258,6 @@ export default function App() {
                   className="hidden"
                 />
 
-                {/* Limpiar sólo si estoy en modo edición */}
                 {isCodeEditable && (
                   <button
                     onClick={() => setPikCode("")}
@@ -244,7 +268,6 @@ export default function App() {
                 )}
               </div>
             </div>
-            {/* ─────────────────────────────────────────────────────────────── */}
 
             <CodeView
               code={pikCode}
@@ -253,7 +276,7 @@ export default function App() {
             />
           </div>
 
-          {/* Consola */}
+          {/* Terminal Interactiva */}
           <div className="flex-1 transition-all duration-300 ease-in-out bg-gray-900 text-green-400 rounded-lg shadow-md p-4">
             <div className="flex items-center gap-2 mb-3">
               <Lottie
@@ -263,21 +286,16 @@ export default function App() {
                 className="w-10 md:w-12 lg:w-16"
               />
               <h2 className="text-2xl font-bold text-purple-300 drop-shadow-sm">
-                Consola de Salida
+                Terminal
               </h2>
             </div>
 
-            <div className="h-[300px] sm:h-[340px] md:h-[380px] lg:h-[420px] xl:h-[460px] max-h-[60vh] border-dashed border-2 border-gray-700 rounded overflow-auto">
-              <SyntaxHighlighter
-                customStyle={{ overflow: "visible" }}
-                wrapLongLines={true}
-                className="h-full whitespace-pre-wrap text-base lg:text-lg xl:text-xl"
-                language="bash"
-                style={coldark}
-              >
-                {output || "Presiona 'Ejecutar' para ver la salida..."}
-              </SyntaxHighlighter>
-            </div>
+            <Terminal
+              output={output}
+              isWaitingForInput={isWaitingForInput}
+              inputPrompt={inputPrompt}
+              onInput={handleModalInput}
+            />
           </div>
         </div>
       </div>
