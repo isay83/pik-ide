@@ -2,7 +2,7 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import * as Blockly from "blockly";
 import { CodeView, Editor } from "./features";
-import { PikInterpreter } from "./core/pikInterpreter";
+import { runPikWithSweetAlerts } from "./core";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import coldark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
 import Lottie from "lottie-react";
@@ -85,8 +85,7 @@ export default function App() {
     setOutput("🚀 Ejecutando código PIK...\n");
 
     try {
-      const interpreter = new PikInterpreter();
-      const result = await interpreter.execute(pikCode);
+      const result = await runPikWithSweetAlerts(pikCode);
       setOutput(result);
     } catch (error) {
       setOutput(

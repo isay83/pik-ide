@@ -1,15 +1,26 @@
 // src/core/pyodideRunner.ts
 import { loadPyodide, type PyodideInterface } from 'pyodide';
 
-let pyodide: PyodideInterface | undefined;
+let pyodide: PyodideInterface;
 
 export async function initPyodide(): Promise<PyodideInterface> {
     if (!pyodide) {
-        pyodide = await loadPyodide({
-            indexURL: '/pyodide/',
-        });
-        // Asegúrate de tener tipos para ModuleType
+        pyodide = await loadPyodide({ indexURL: '/pyodide/' });
         await pyodide.loadPackage('ply');
+
+        // Inyectamos un input() síncrono que use prompt nativo
+        await pyodide.runPythonAsync(`
+import builtins
+from js import window
+
+def prompt_input(msg=""):
+    answer = window.prompt(msg)
+    if answer is None:
+        raise EOFError("Input cancelado")
+    return str(answer)
+
+builtins.input = prompt_input
+`);
     }
     return pyodide;
 }
@@ -17,7 +28,7 @@ export async function initPyodide(): Promise<PyodideInterface> {
 export async function runPik(code: string): Promise<string> {
     const py = await initPyodide();
 
-    // Lista tus módulos Python
+    // Carga de tus .py (lexer, parser, etc.)
     const modules = [
         'lexer.py',
         'parser.py',
@@ -25,39 +36,23 @@ export async function runPik(code: string): Promise<string> {
         'interpreter.py',
         'pik_runner.py',
     ];
-
     for (const filename of modules) {
-        const name = filename.replace(/\.py$/, '');      // e.g. "lexer"
+        const name = filename.replace(/\.py$/, '');
         const src = await fetch(`/pik/${filename}`).then(r => r.text());
-
-        // Crea el módulo, lo registra y ejecuta su código allí
-        const loader = `
+        await py.runPythonAsync(`
 import sys, types
 mod = types.ModuleType("${name}")
 mod.__file__ = "${filename}"
 sys.modules["${name}"] = mod
 exec(${JSON.stringify(src)}, mod.__dict__)
-`;
-        await py.runPythonAsync(loader);
+`);
     }
 
-    // Reemplazar input de Python por prompt de navegador
-    await py.runPythonAsync(`
-import builtins
-from js import window
-
-def prompt_input(msg=""):
-    response = window.prompt(msg)
-    if response is None:
-        raise EOFError("Input cancelled")
-    return response
-
-builtins.input = prompt_input
+    // Ejecutar run_pik de forma síncrona
+    const result = await py.runPythonAsync(`
+from pik_runner import run_pik
+run_pik(${JSON.stringify(code)})
 `);
-
-    await py.runPythonAsync(`from pik_runner import run_pik`);
-
-    const result = await py.runPythonAsync(`run_pik(${JSON.stringify(code)})`);
 
     return typeof result === 'string' ? result : String(result);
 }
