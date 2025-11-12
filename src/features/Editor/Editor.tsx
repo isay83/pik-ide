@@ -152,6 +152,7 @@ export default function Editor({
         >
           <button
             onClick={toggleMenu}
+            data-tour="blocks-button"
             className="bg-white border rounded px-3 py-1 shadow text-sm text-blue-700 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
           >
             {menuVisible ? "← Ocultar" : "☰ Bloques"}
@@ -170,6 +171,7 @@ export default function Editor({
         /* añade: */
         items-center
       "
+          data-tour="blocks-panel"
         >
           <div
             className="
